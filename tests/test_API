@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+from  eTraveler.clientAPI.connection import Connection
+
+myConn = Connection('jrb', 'Raw', debug=True)
+try: 
+    newId = myConn.registerHardware(htype='boojum', site='SLAC', location='Cabinet', experimentSN='23')
+    print 'New hardware registered.  Returned id is ', newId
+except Exception,msg:
+    print 'Hardware registration failed with exception ',msg
+
+## missing parameter
+try: 
+    myConn.registerHardware(htype='boojum', site='SLAC', location='Cabinet')
+    print 'New hardware registered.  Returned id is ', newId
+except Exception,msg:
+    print 'Hardware registration failed with exception ',msg
+
+try:
+    myConn.runTraveler(hardwareId='23', travelerName='jh_no-op-Generic',
+                       travelerVersion='active', hardwareGroup='Generic-CCD')
+    print "Traveler execution succeeded"
+except Exception,msg:
+    print 'Traveler execution failed with exception ', msg

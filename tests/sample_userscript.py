@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 '''
-Sample user script for eTraveler API
+Sample user script for eTraveler API 
+Assumes there is a top-level directory containing one subdirectory
+per component, named after component's serial number.
+Register each component and run a traveler
 '''
 
 import os
-import eTravelerClient.connection
+import from eTraveler.clientAPI.connection import Connection
 
 # Assume top-level directory is in an environment variable
 topdir = os.environ.get('DATADIR')
@@ -16,7 +19,7 @@ if not topdir:
 manIds = list(os.listdir(topdir))
 
 # Connect to eTraveler (prod) server with intent to use Dev database
-conn = eTravelerClient.connection.Connection('jrb', 'Dev')
+conn = Connection('jrb', 'Dev')
 if not conn:
     raise RuntimeError, 'unable to authenticate'
 
@@ -24,7 +27,8 @@ for manId in manIds:
     # maybe some sort of sanity check that cmp is of a particular form?
 
     # can also specify model, manufacture date
-    hid = conn.registerHardware('ASPIC', 'Orsay', 'Storage cabinet',
+    hid = conn.registerHardware(htype='ASPIC', site='Orsay', 
+                                location='Storage cabinet',
                                 experimentSN='LSST-'+str(manId),
                                 manufactureId=manId)
 
@@ -32,7 +36,9 @@ for manId in manIds:
     # The job(s) will be able to find the associated data from the
     # environment variables DATADIR and LCATR_UNIT_ID.  The value
     # of the latter is the same string set into experimentSN above
-    status = connection.runTraveler(hid, 'ASPIC_data_ingest', 'active',
-                                    'ASPIC')
+    status = connection.runTraveler(hardwareId=hid, 
+                                    travelerName='ASPIC_data_ingest', 
+                                    travelerVersion='active',
+                                    hardwareGroup='ASPIC')
 
 
