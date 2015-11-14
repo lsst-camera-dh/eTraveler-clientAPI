@@ -5,6 +5,11 @@ and handling communication at bottom layer
 import time
 import json
 import requests
+import stdout from sys
+#  Might want to specify path or a use a different name for commands module
+#  to avoid possibility of getting the wrong one
+import clientAPI.commands
+
 
 class Connection:
     prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
@@ -13,13 +18,17 @@ class Connection:
     API = {
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
                               'manufacturerId', 'model', 'manufactureDate',
-                              'operator'],
-        'runAutomatable' : ['hardwareId', 'travelerName',
-                         'travelerVersion', 'hardwareGroup', 'operator']
+                              'manufacturer', 'operator', 'quantity'],
+        'runHarnessed' : ['hardwareId', 'travelerName',
+                         'travelerVersion', 'hardwareGroup', 'operator',
+                         'jh']
         }
-    APIdefaults = { 'runAutomatable' : {'operator' : None }, 
-        'registerHardware' : {'manufacturerId' : '', 'model' : '',
-                              'manufactureDate' : '', 'operator' : None }  }
+    APIdefaults = { 
+        'runHarnessed' : {'operator' : None, 'travelerVersion' : ''}, 
+        'registerHardware' : {'experimentSN' : '', 'manufacturerId' : '', 
+                              'model' : '',
+                              'manufactureDate' : '', 'manufacturer' : '',
+                              'operator' : None, 'quantity' : 1}  }
         
         
     def __init__(self, operator=None, db='Prod', prodServer=True, 
@@ -112,17 +121,24 @@ class Connection:
         else:
             raise Exception, rsp['acknowledge']
 
-    def runTraveler(self, **kwds):
+    def runHarnessed(self, **kwds):
         '''
         Run specified traveler on specified component.
         Traveler must be automatable
+        
         Return status
         '''
+
         rsp = self._make_query('runAutomatable', **kwds)
         if self.debug:
-            rsp = {'acknowledge' : None}
+            rsp = {'acknowledge' : None, 'command' : 'lcatr-harness with options'}
 
         if rsp['acknowledge'] == None:
+            if self.debug:
+                print 'Next we should execute the command string: '
+                print rsp['command']
+            else:
+                clientAPI.commands.execute(rsp['command'], out = stdout.write)
             return
         else:
             raise Exception, rsp['acknowledge']
