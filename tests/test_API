@@ -17,7 +17,7 @@ except Exception,msg:
     print 'Hardware registration failed with exception ',msg
 
 try:
-    myConn.runTraveler(hardwareId='23', travelerName='jh_no-op-Generic',
+    myConn.runHarnessed(hardwareId='23', travelerName='jh_no-op-Generic',
                        travelerVersion='active', hardwareGroup='Generic-CCD')
     print "Traveler execution succeeded"
 except Exception,msg:

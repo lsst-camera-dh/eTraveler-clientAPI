@@ -10,7 +10,6 @@ import stdout from sys
 #  to avoid possibility of getting the wrong one
 import clientAPI.commands
 
-
 class Connection:
     prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
     devServerUrl='http://scalnx-v04.slac.stanford.edu:8180/eTraveler/'
@@ -19,16 +18,18 @@ class Connection:
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
                               'manufacturerId', 'model', 'manufactureDate',
                               'manufacturer', 'operator', 'quantity'],
+        'defineHardwareType' : ['name', 'description', 'sequenceWidth',
+                                'isBatched'],
         'runHarnessed' : ['hardwareId', 'travelerName',
-                         'travelerVersion', 'hardwareGroup', 'operator',
-                         'jh']
+                         'travelerVersion', 'hardwareGroup', 'operator']
         }
     APIdefaults = { 
         'runHarnessed' : {'operator' : None, 'travelerVersion' : ''}, 
+        'defineHardwareType' : {'sequenceWidth' : 4, 'isBatched' : 0},
         'registerHardware' : {'experimentSN' : '', 'manufacturerId' : '', 
                               'model' : '',
                               'manufactureDate' : '', 'manufacturer' : '',
-                              'operator' : None, 'quantity' : 1}  }
+                              'operator' : None, 'quantity' : 1} }
         
         
     def __init__(self, operator=None, db='Prod', prodServer=True, 
@@ -40,7 +41,7 @@ class Connection:
         url += db 
         self.baseurl = url
         #self.dsmode = 'dataSourceMode=' + db
-        # if operator is None, prompt
+        # if operator is None, prompt or use login?
         # do something for authorization
         self.operator = operator
         self.debug = debug

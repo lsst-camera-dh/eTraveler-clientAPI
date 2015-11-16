@@ -1,0 +1,67 @@
+Input and output will be JSON dicts.  All inputs will be provided for all
+commands though value may be empty string or null for some of them.
+
+1. Command name:  defineHardwareType
+
+Input parameters  (name and use):
+
+name           HardwareType.name
+description    HardwareType.description
+sequenceWidth  HardwareType.autoSequenceWidth
+operator       HardwareType.createdBy
+
+(Do we also want a trackingType parameter?)
+
+Returns   (name and meaning)
+
+id            HardwareType.id if successful, else '0' or null
+acknowledge   Null if successful, else error string
+
+2. Command name: registerHardware
+
+Input parameters (name and use)
+
+htype           HardwareType.name  (must match existing hardware type)
+site            Site.name
+location        Location.name (where Location.siteId = Site.id for above site)
+experimentSN    Hardware.lsstId
+manufacturerId  Hardware.manufactureId
+model           Hardware.model
+manufactureDate Hardware.manufactureDate
+manufacturer    Hardware.manufacturer
+operator        Hardware.createdBy
+
+Returns (name and meaning)
+
+id            Hardware.id if successful, else '0' or null
+acknowledge   Null if successful, else error string
+
+3. Command name: runAutomatable
+
+Input parameters (name and use)
+hardwareId      Hardware.id   for existing registered component
+travelerName    Process.name where Process.id = TravelerType.rootProcessId
+travelerVersion Process.version or empty string, denoting most recent active
+hardwareGroup   HardwareGroup.name needed to uniquely specify traveler
+operator        Activity.createdBy
+
+Returns (name and meaning)
+
+command         Command string to be executed locally, or null if failure
+acknowledge     Null if successful, else error string
+
+4. Command name: runOneStep
+
+Input parameters (name and use)
+hardwareId      Hardware.id   for existing registered component
+travelerName    Process.name where Process.id = TravelerType.rootProcessId
+travelerVersion Process.version or empty string, denoting most recent active
+hardwareGroup   HardwareGroup.name needed to uniquely specify traveler
+operator        Activity.createdBy
+oepratorInputs  Null or dict of key-value pairs where the key =
+                InputPattern.label (and InputPattern.processId = Process.id)
+
+Returns (name and meaning)
+
+acknowledge     Null if successful, else error string
+

@@ -35,10 +35,9 @@ for manId in manIds:
     # Run a traveler containing one or more harnessed jobs
     # The job(s) will be able to find the associated data from the
     # environment variables DATADIR and LCATR_UNIT_ID.  The value
-    # of the latter is the same string set into experimentSN above
-    status = connection.runTraveler(hardwareId=hid, 
+    # of the latter is the same string set into experimentSN above.
+    status = connection.runHarnessed(hardwareId=hid, 
                                     travelerName='ASPIC_data_ingest', 
-                                    travelerVersion='active',
                                     hardwareGroup='ASPIC')
 
 
