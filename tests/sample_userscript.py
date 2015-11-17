@@ -37,7 +37,8 @@ for manId in manIds:
     # environment variables DATADIR and LCATR_UNIT_ID.  The value
     # of the latter is the same string set into experimentSN above.
     status = connection.runHarnessed(hardwareId=hid, 
-                                    travelerName='ASPIC_data_ingest', 
-                                    hardwareGroup='ASPIC')
+                                     travelerName='ASPIC_data_ingest', 
+                                     hardwareGroup='ASPIC',
+                                     site='Orsay', jhInstall='DevJH')
 
 

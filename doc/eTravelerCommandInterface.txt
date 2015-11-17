@@ -43,6 +43,8 @@ hardwareId      Hardware.id   for existing registered component
 travelerName    Process.name where Process.id = TravelerType.rootProcessId
 travelerVersion Process.version or empty string, denoting most recent active
 hardwareGroup   HardwareGroup.name needed to uniquely specify traveler
+site            Site.name
+jhInstall       JobHarness.name
 operator        Activity.createdBy
 
 Returns (name and meaning)

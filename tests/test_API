@@ -18,7 +18,8 @@ except Exception,msg:
 
 try:
     myConn.runHarnessed(hardwareId='23', travelerName='jh_no-op-Generic',
-                       travelerVersion='active', hardwareGroup='Generic-CCD')
+                        hardwareGroup='Generic-CCD',
+                        site='test', jhInstall='JoannesLaptopJH')
     print "Traveler execution succeeded"
 except Exception,msg:
     print 'Traveler execution failed with exception ', msg

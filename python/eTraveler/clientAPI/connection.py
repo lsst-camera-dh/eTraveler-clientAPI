@@ -21,7 +21,8 @@ class Connection:
         'defineHardwareType' : ['name', 'description', 'sequenceWidth',
                                 'isBatched'],
         'runHarnessed' : ['hardwareId', 'travelerName',
-                         'travelerVersion', 'hardwareGroup', 'operator']
+                         'travelerVersion', 'hardwareGroup', 'site',
+                          'jhInstall', 'operator']
         }
     APIdefaults = { 
         'runHarnessed' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -143,5 +144,3 @@ class Connection:
             return
         else:
             raise Exception, rsp['acknowledge']
-
-        
