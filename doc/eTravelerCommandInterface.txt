@@ -8,6 +8,7 @@ Input parameters  (name and use):
 name           HardwareType.name
 description    HardwareType.description
 sequenceWidth  HardwareType.autoSequenceWidth
+batchedFlag    HardwareType.isBatched
 operator       HardwareType.createdBy
 
 (Do we also want a trackingType parameter?)
@@ -27,8 +28,9 @@ location        Location.name (where Location.siteId = Site.id for above site)
 experimentSN    Hardware.lsstId
 manufacturerId  Hardware.manufactureId
 model           Hardware.model
-manufactureDate Hardware.manufactureDate
+manufactureDate Hardware.manufactureDate         [of form YYYY-MM-DD]
 manufacturer    Hardware.manufacturer
+quantity        BatchedInventoryHistory.adjustment   [int]
 operator        Hardware.createdBy
 
 Returns (name and meaning)
