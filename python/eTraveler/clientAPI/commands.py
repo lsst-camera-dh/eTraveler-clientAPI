@@ -50,7 +50,8 @@ def execute(cmdstr, env = None, out = None):
         out(line)
         return
 
-    sys.stdout.write('Executing: %s \n' % ' '.join(cmdstr)))
+    sys.stdout.write('Executing: ')
+    sys.stdout.write(cmdstr + '\n')
     try:
         proc = Popen(cmdstr, stdout=PIPE, stderr=STDOUT, 
                      universal_newlines=True, env=env)

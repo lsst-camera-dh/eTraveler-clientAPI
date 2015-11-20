@@ -5,14 +5,14 @@ and handling communication at bottom layer
 import time
 import json
 import requests
-import stdout from sys
+from sys import stdout
 #  Might want to specify path or a use a different name for commands module
 #  to avoid possibility of getting the wrong one
-import clientAPI.commands
+import eTraveler.clientAPI.commands
 
 class Connection:
     prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
-    devServerUrl='http://scalnx-v04.slac.stanford.edu:8180/eTraveler/'
+    devServerUrl='http://srs.slac.stanford.edu/eTraveler/'
 
     API = {
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
@@ -40,6 +40,7 @@ class Connection:
         # For now can't talk to CDMS databases
         #url += ('/exp/' + exp + '/')
         url += db 
+        url += '/Results/'
         self.baseurl = url
         #self.dsmode = 'dataSourceMode=' + db
         # if operator is None, prompt or use login?
@@ -47,9 +48,10 @@ class Connection:
         self.operator = operator
         self.debug = debug
         if debug:
-            print "Destination url is ", str(self.baseurl)
+            print " baseurl is ", str(self.baseurl)
             print "Operator is ", str(self.operator)
-
+        else:
+            print "baseurl is ", str(self.baseurl)
 
 ####
     def _make_params(self, command, **kwds):
@@ -90,14 +92,17 @@ class Connection:
         keywords or raise ValueError.
         '''
         query = self._make_params(command,**kwds)
-        if self.debug:
-            print 'query before jsonification is ', str(query)
+        #if self.debug:
+        print 'query before jsonification is ', str(query)
 
         jdata = json.dumps(query)
+        print 'after jsonification: \n', str(jdata)
         if self.debug: return None
 
-        r = requests.post(url, data=jdata)
-        # or could just do r = requests.post(url, json=query)
+        posturl = self.baseurl + command
+        print "about to post to ", posturl
+        r = requests.post(posturl, data = jdata)
+        # or could just do r = requests.post(self.baseurl, json=query)
 
         # Now to look at the response:
         try:
@@ -118,10 +123,17 @@ class Connection:
         if self.debug:
             rsp = {'hardwareId': 17, 'acknowledge' : None}
 
-        if rsp['acknowledge'] == None:
-            return rsp['hardwareId']
+        if type(rsp) is dict:
+            if rsp['acknowledge'] == None:
+                return rsp['hardwareId']
+            else:
+                print 'str rsp of acknowledge: '
+                print  str(rsp['acknowledge'])
+                raise Exception, rsp['acknowledge']
         else:
-            raise Exception, rsp['acknowledge']
+            print 'return value of unexpected type', type(rsp)
+            print 'return value cast to string is: ', str(rsp)
+            raise Exception, str(rsp)
 
     def runHarnessed(self, **kwds):
         '''
