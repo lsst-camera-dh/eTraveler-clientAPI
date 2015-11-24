@@ -5,7 +5,9 @@ and handling communication at bottom layer
 import time
 import json
 import requests
-from sys import stdout
+from urllib import urlencode
+import urllib2
+import sys
 #  Might want to specify path or a use a different name for commands module
 #  to avoid possibility of getting the wrong one
 import eTraveler.clientAPI.commands
@@ -42,7 +44,6 @@ class Connection:
         url += db 
         url += '/Results/'
         self.baseurl = url
-        #self.dsmode = 'dataSourceMode=' + db
         # if operator is None, prompt or use login?
         # do something for authorization
         self.operator = operator
@@ -91,26 +92,37 @@ class Connection:
         Make a query string for the given command and with the given
         keywords or raise ValueError.
         '''
+        # make a dict of parameters
         query = self._make_params(command,**kwds)
-        #if self.debug:
-        print 'query before jsonification is ', str(query)
-
         jdata = json.dumps(query)
-        print 'after jsonification: \n', str(jdata)
+
         if self.debug: return None
 
         posturl = self.baseurl + command
         print "about to post to ", posturl
-        r = requests.post(posturl, data = jdata)
-        # or could just do r = requests.post(self.baseurl, json=query)
-
-        # Now to look at the response:
         try:
-            rsp = r.json
+            r = requests.post(posturl, data = {"jsonObject" : jdata})
+        except requests.HTTPError, msg:
+            print "HTTPError: ", str(msg)
+            sys.exit()
+        except requests.RequestException, msg:
+            print "Some other exception: ", str(msg)
+            sys.exit()
+        
+        print 'No exceptions! '
+        print "Status code: ", r.status_code
+        print "Content type: ", r.headers['content-type']
+        print "Text: ", r.text
+
+        print "this is type of what I got: ", type(r)
+
+        try:
+            rsp = r.json()
             return rsp
         except ValueError, msg:
             # for now just reraise
             print "Unable to decode json"
+            print "Original: ", str(r)
             raise ValueError, msg
 
         
@@ -121,11 +133,11 @@ class Connection:
         rsp = self._make_query('registerHardware', **kwds)
         
         if self.debug:
-            rsp = {'hardwareId': 17, 'acknowledge' : None}
+            rsp = {'id': 17, 'acknowledge' : None}
 
         if type(rsp) is dict:
             if rsp['acknowledge'] == None:
-                return rsp['hardwareId']
+                return rsp['id']
             else:
                 print 'str rsp of acknowledge: '
                 print  str(rsp['acknowledge'])
@@ -152,7 +164,7 @@ class Connection:
                 print 'Next we should execute the command string: '
                 print rsp['command']
             else:
-                clientAPI.commands.execute(rsp['command'], out = stdout.write)
+                clientAPI.commands.execute(rsp['command'], out = sys.stdout.write)
             return
         else:
             raise Exception, rsp['acknowledge']

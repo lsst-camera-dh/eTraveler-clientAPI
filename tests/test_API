@@ -6,22 +6,18 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Raw', prodServer=False)
 newId = ''
 try: 
-    newId = myConn.registerHardware(htype='ITL-CCD', site='SLAC', location='Cabinet', experimentSN='ITL-CCD-666')
+    newId = myConn.registerHardware(htype='ITL-CCD', site='test',
+                                    manufacturer='ITL',
+                                    location='Cabinet', 
+                                    experimentSN='ITL-CCD-670')
     print 'New hardware registered.  Returned id is ', newId
     sys.exit(0)
 except Exception,msg:
     print 'Hardware registration failed with exception ',msg
     sys.exit(1)
 
-## missing parameter
-#try: 
-#    myConn.registerHardware(htype='boojum', site='SLAC', location='Cabinet')
-#    print 'New hardware registered.  Returned id is ', newId
-#except Exception,msg:
-#    print 'Hardware registration failed with exception ',msg
-
 try:
-    myConn.runHarnessed(hardwareId='23', travelerName='jh_no-op-Generic',
+    myConn.runHarnessed(hardwareId=newId, travelerName='jh_no-op-Generic',
                         hardwareGroup='Generic-CCD',
                         site='test', jhInstall='JoannesLaptopJH')
     print "Traveler execution succeeded"
