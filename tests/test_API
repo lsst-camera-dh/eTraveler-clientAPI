@@ -9,9 +9,8 @@ try:
     newId = myConn.registerHardware(htype='ITL-CCD', site='test',
                                     manufacturer='ITL',
                                     location='Cabinet', 
-                                    experimentSN='ITL-CCD-671')
+                                    experimentSN='ITL-CCD-675')
     print 'New hardware registered.  Returned id is ', newId
-    sys.exit(0)
 except Exception,msg:
     print 'Hardware registration failed with exception ',msg
     sys.exit(1)

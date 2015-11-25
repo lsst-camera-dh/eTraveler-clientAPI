@@ -232,9 +232,10 @@ class Connection:
             if self.debug:
                 print 'Next we should execute the command string: '
                 print rsp['command']
-            else:
-                clientAPI.commands.execute(rsp['command'], env = self.env,
-                                           out = to_terminal)
+
+            eTraveler.clientAPI.commands.execute(rsp['command'], 
+                                                 env = self.env,
+                                                 out = to_terminal)
             return
         else:
             raise Exception, rsp['acknowledge']
@@ -263,10 +264,10 @@ class Connection:
             if self.debug:
                 print 'Next we should execute the command string: '
                 print rsp['command']
-            else:
-                eTraveler.clientAPI.commands.execute(rsp['command'], 
-                                                     env = self.env,
-                                                     out = to_terminal)
+
+            eTraveler.clientAPI.commands.execute(rsp['command'], 
+                                                 env = self.env,
+                                                 out = to_terminal)
             return
         else:
             raise Exception, rsp['acknowledge']
