@@ -4,3 +4,4 @@
 *.pyc
 *_wrap.cc
 *.cfgc
+*.log

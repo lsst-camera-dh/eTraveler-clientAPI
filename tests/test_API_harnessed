@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+
+myConn = Connection('jrb', 'Raw', prodServer=False)
+
+try:
+    myConn.runHarnessed(experimentSN='ITL-CCD-666', 
+                        htype='ITL-CCD',
+                        travelerName='jh_no-op-Generic',
+                        hardwareGroup='Generic-CCD',
+                        site='test', jhInstall='JoannesLaptopJH')
+    print "Traveler execution succeeded"
+except Exception,msg:
+    print 'Traveler execution failed with exception ', msg

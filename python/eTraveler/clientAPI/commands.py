@@ -34,9 +34,12 @@ def execute(cmdstr, env = None, out = None):
 
     CommandFailure is raised if return value is nonzero.
     '''
-    
+    if type(cmdstr) != type("") and type(cmdstr) != type([]): 
+        cmdstr = cmdstr.encode('ascii')
+
     if type(cmdstr) == type(""):
         cmdstr = cmdstr.strip().split()
+        
 
     if not env:
         env = os.environ
@@ -50,14 +53,14 @@ def execute(cmdstr, env = None, out = None):
         out(line)
         return
 
-    sys.stdout.write('Executing: ')
-    sys.stdout.write(cmdstr + '\n')
+    sys.stdout.write('Executing: %s' % ' '.join(cmdstr))
+
     try:
         proc = Popen(cmdstr, stdout=PIPE, stderr=STDOUT, 
                      universal_newlines=True, env=env)
     except OSError,err:
-        sys.stderr.write(err + '\n')
-        sys.stderr.write('cmd: "%s" \n' % ' '.join(cmdstr))
+        sys.stderr.write(str(err) + '\n')
+        sys.stderr.write('cmd:  %s \n' % ' '.join(cmdstr))
         raise
 
     
@@ -80,7 +83,6 @@ def execute(cmdstr, env = None, out = None):
         break
 
     if res == 0: 
-        ##log.debug('Command: "%s" succeeded' % ' '.join(cmdstr))
         sys.stdout.write('Command: "%s" succeeded \n' % ' '.join(cmdstr))
         return
     err = 'Command: "%s" failed with code %d \n' % (' '.join(cmdstr), res)

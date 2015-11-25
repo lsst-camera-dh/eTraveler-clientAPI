@@ -9,17 +9,9 @@ try:
     newId = myConn.registerHardware(htype='ITL-CCD', site='test',
                                     manufacturer='ITL',
                                     location='Cabinet', 
-                                    experimentSN='ITL-CCD-671')
+                                    experimentSN='ITL-CCD-672')
     print 'New hardware registered.  Returned id is ', newId
-    sys.exit(0)
 except Exception,msg:
     print 'Hardware registration failed with exception ',msg
-    sys.exit(1)
 
-try:
-    myConn.runHarnessedById(hardwareId=newId, travelerName='jh_no-op-Generic',
-                            hardwareGroup='Generic-CCD',
-                            site='test', jhInstall='JoannesLaptopJH')
-    print "Traveler execution succeeded"
-except Exception,msg:
-    print 'Traveler execution failed with exception ', msg
+
