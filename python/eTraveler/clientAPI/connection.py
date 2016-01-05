@@ -7,6 +7,7 @@ import json
 import requests
 import sys
 import os
+import string
 #  Might want to specify path or a use a different name for commands module
 #  to avoid possibility of getting the wrong one
 import eTraveler.clientAPI.commands
@@ -31,7 +32,12 @@ class Connection:
         'runHarnessed'     : ['experimentSN', 'htype', 'travelerName',
                               'travelerVersion', 'hardwareGroup', 'site',
                               'jhInstall', 'operator'],
-
+        'defineRelationshipType' : ['name', 'description', 'hardwareTypeName',
+                                    'minorTypeName', 'numItems', 'slotNames',
+                                    'operator'],
+        'defineRelationshipTypeById' : ['name', 'description', 'hardwareTypeId',
+                                        'minorTypeId', 'numItems', 'slotNames',
+                                        'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -41,7 +47,12 @@ class Connection:
         'registerHardware' : {'experimentSN' : '', 'manufacturerId' : '', 
                               'model' : '',
                               'manufactureDate' : '', 'manufacturer' : '',
-                              'operator' : None, 'quantity' : 1} }
+                              'operator' : None, 'quantity' : 1},
+        'defineRelationshipType' : {'operator' : None, 'numItems' : 1,
+                                    'description' : None},
+        'defineRelationshipTypeById' : {'operator' : None, 'numItems' : 1,
+                                        'description' : None},
+        }
         
         
     def __init__(self, operator=None, db='Prod', prodServer=True, 
@@ -62,7 +73,7 @@ class Connection:
             print " baseurl is ", str(self.baseurl)
             print "Operator is ", str(self.operator)
 
-    def _make_params(self, func, **kwds):
+    def __make_params(self, func, **kwds):
         '''
         Take keyword arguments and return dictionary suitable for use
         with func or raise ValueError.
@@ -80,7 +91,7 @@ class Connection:
                 cfg.update(f=Connection.APIdefaults[func][f])
                 missingCopy.remove(f)
         if missingCopy:
-            msg = 'Not given enough info to statisfy eTraveler API for %s: missing: %s' % (func, str(sorted(missingCopy)))
+            msg = 'Not given enough info to satisfy eTraveler API for %s: missing: %s' % (func, str(sorted(missingCopy)))
             #log.error(msg)
             raise ValueError, msg
         if cfg['operator'] == None:
@@ -105,7 +116,7 @@ class Connection:
         kwds - parameters for command going to eTraveler
         '''
         # make a dict of parameters
-        query = self._make_params(func, **kwds)
+        query = self.__make_params(func, **kwds)
         jdata = json.dumps(query)
 
         posturl = self.baseurl + command
@@ -113,6 +124,11 @@ class Connection:
         if self.debug:
             print "json string: "
             print str(jdata)
+            if command == 'defineRelationshipType':
+                print 'Original query string: '
+                print str(query)
+                #print 'In debug mode go no further for now'
+                #return
             print "about to post to ", posturl
 
         try:
@@ -156,18 +172,8 @@ class Connection:
         '''
         rsp = self._make_query('registerHardware', 'registerHardware',
                                **kwds)
-        
-        if type(rsp) is dict:
-            if rsp['acknowledge'] == None:
-                return rsp['id']
-            else:
-                print 'str rsp of acknowledge: '
-                print  str(rsp['acknowledge'])
-                raise Exception, rsp['acknowledge']
-        else:
-            print 'return value of unexpected type', type(rsp)
-            print 'return value cast to string is: ', str(rsp)
-            raise Exception, str(rsp)
+
+        return self._decodeResponse('registerHardware', rsp)
 
     def defineHardwareType(self, **kwds):
         '''
@@ -177,7 +183,7 @@ class Connection:
             description - optional but strongly recommended!
             sequenceWidth - # of digits in auto-generated serial numbers
                 defaults to 4.  Value of 0 means "don't auto-generate"
-            isBatched - defaults to False
+            batchedFlag - defaults to 0  (false)
 
         Returns:
             id of new hardware type if successful, else raises exception
@@ -198,17 +204,7 @@ class Connection:
         rsp = self._make_query('defineHardwareType', 'defineHardwareType',
                                **kwds)
 
-        if type(rsp) is dict:
-            if rsp['acknowledge'] == None:
-                return rsp['id']
-            else:
-                print 'str rsp of acknowledge: '
-                print  str(rsp['acknowledge'])
-                raise Exception, rsp['acknowledge']
-        else:
-            print 'return value of unexpected type', type(rsp)
-            print 'return value cast to string is: ', str(rsp)
-            raise Exception, str(rsp)
+        return self._decodeResponse('defineHardwareType', rsp)
         
     def runHarnessedById(self, **kwds):
         '''
@@ -223,23 +219,17 @@ class Connection:
             jhInstall    - Name of job harness installation. Required
         Return status
         '''
-
         rsp = self._make_query('runAutomatable', 'runHarnessedById', **kwds)
         if self.debug:
             rsp = {'acknowledge' : None, 'command' : 'lcatr-harness with options'}
+        harnessedCommand = self._decodeResponse('runAutomatable', rsp)
+        if self.debug:
+            print 'Next we should execute the command string: '
+            print harnessedCommand
 
-        if rsp['acknowledge'] == None:
-            if self.debug:
-                print 'Next we should execute the command string: '
-                print rsp['command']
-
-            eTraveler.clientAPI.commands.execute(rsp['command'], 
-                                                 env = self.env,
-                                                 out = to_terminal)
-            return
-        else:
-            raise Exception, rsp['acknowledge']
-
+        eTraveler.clientAPI.commands.execute(harnessedCommand, 
+                                             env = self.env,
+                                             out = to_terminal)
 
     def runHarnessed(self, **kwds):
         '''
@@ -260,14 +250,96 @@ class Connection:
         if self.debug:
             rsp = {'acknowledge' : None, 'command' : 'lcatr-harness with options'}
 
-        if rsp['acknowledge'] == None:
-            if self.debug:
-                print 'Next we should execute the command string: '
-                print rsp['command']
+        harnessedCommand = self._decodeResponse('runAutomatable', rsp)
+        if self.debug:
+            print 'Next we should execute the command string: '
+            print harnessedCommand
 
-            eTraveler.clientAPI.commands.execute(rsp['command'], 
-                                                 env = self.env,
-                                                 out = to_terminal)
-            return
+        eTraveler.clientAPI.commands.execute(harnessedCommand, 
+                                             env = self.env,
+                                             out = to_terminal)
+
+    def defineRelationshipType(self, **kwds):
+        '''
+        Create new relationship type, specifying hardware types by name.
+        Arguments:
+            name - name of new type. Required
+            description - optional but strongly recommended
+            hardwareTypeName - name of "major" type
+            minorTypeName - name of subsidiary type
+            numItems - defaults to 1
+            slotNames - single string or list of strings
+        Returns:
+            If successful, new id
+        '''
+        self._checkSlotNames(**kwds)
+        rsp = self._make_query('defineRelationshipType', 
+                               'defineRelationshipType',
+                               **kwds)
+        return self._decodeResponse('defineReleationshipType', rsp)
+
+    def defineRelationshipTypeById(self, **kwds):
+        '''
+        Create new relationship type, specifying hardware types by id.
+        Arguments:
+            name - name of new type. Required
+            description - optional but strongly recommended
+            hardwareTypeId - id of "major" type
+            minorTypeId - id of subsidiary type
+            numItems - defaults to 1
+            slotNames - single string or list of strings
+        '''
+        self._checkSlotNames(**kwds)
+        rsp = self._make_query('defineRelationshipType', 
+                               'defineRelationshipTypeById',
+                               **kwds)
+        return self._decodeResponse('defineReleationshipType', rsp)
+
+    def _checkSlotNames(self, **kwds):
+        '''
+        Looks for properly formatted and consistent values for 
+        numItems and slotNames.  In case there are multiple
+        slotNames, reformat as single string.
+        Return new argument dict
+        '''
+        k = dict(kwds)
+        num = 1
+        if 'numItems' in k:
+            num = int(k['numItems'])
+        if 'slotNames' not in k:
+            raise ValueError, 'Missing slotName argument'
+
+        slist = k['slotNames']
+        if isinstance(slist, str): slist = [slist]
+
+        if not isinstance(slist, list):
+            raise ValueError, 'Improper slotName list'
+        for e in slist: 
+            if not isinstance(e, str):
+                raise ValueError, 'Slot names must be strings'
+            if ',' in e:
+                raise ValueError, 'Slot names may not contain commas'
+
+        if (len(slist) != 1) and (len(slist) != num):
+            raise ValueError, 'Wrong number of slotnames'
+
+        kwds['slotNames'] = string.join(slist, ',')
+        return
+
+    def _decodeResponse(self, command, rsp):
+        '''
+        Common error handling for response to query. If good response,
+        differentiate by command issued
+        '''
+        if type(rsp) is dict:
+            if rsp['acknowledge'] == None:
+                if (command == 'runAutomatable'): return rsp['command']
+                else: return rsp['id']
+            else:
+                #print 'str rsp of acknowledge: '
+                #print  str(rsp['acknowledge'])
+                raise Exception, rsp['acknowledge']
         else:
-            raise Exception, rsp['acknowledge']
+            print 'return value of unexpected type', type(rsp)
+            print 'return value cast to string is: ', str(rsp)
+            raise Exception, str(rsp)
