@@ -18,7 +18,6 @@ def to_terminal(out):
 class Connection:
     prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
     devServerUrl='http://srs.slac.stanford.edu/eTraveler/'
-    #devServerUrl='http://scalnx-v04.slac.stanford.edu:8180/eTraveler/'
 
     API = {
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
@@ -105,7 +104,7 @@ class Connection:
         query = {k:cfg[k] for k in want}
         return query
 
-    def _make_query(self, command, func, **kwds):
+    def __make_query(self, command, func, **kwds):
         '''
         Make a query string for the given command and with the given
         keywords or raise ValueError.
@@ -122,6 +121,9 @@ class Connection:
         posturl = self.baseurl + command
 
         if self.debug:
+            if 'slotNames' in kwds:
+                print 'Value of slotNames: '
+                print kwds['slotNames']
             print "json string: "
             print str(jdata)
             if command == 'defineRelationshipType':
@@ -154,6 +156,9 @@ class Connection:
             # for now just reraise
             print "Unable to decode json"
             print "Original: ", str(r)
+            print "Content type: ", r.headers['content-type']
+            print "Text: ", r.text
+            print "this is type of what I got: ", type(r)
             raise ValueError, msg
 
         
@@ -170,8 +175,8 @@ class Connection:
           Remaining keyword arguments are optional and default to empty string
            manufacturerId, model, manufactureDate, manufacturer
         '''
-        rsp = self._make_query('registerHardware', 'registerHardware',
-                               **kwds)
+        rsp = self.__make_query('registerHardware', 'registerHardware',
+                                **kwds)
 
         return self._decodeResponse('registerHardware', rsp)
 
@@ -201,8 +206,8 @@ class Connection:
                     raise ValueError, 'No blanks allowed in hardware type name'
                 else:
                     raise ValueError, 'name contains disallowed character %s' %c
-        rsp = self._make_query('defineHardwareType', 'defineHardwareType',
-                               **kwds)
+        rsp = self.__make_query('defineHardwareType', 'defineHardwareType',
+                                **kwds)
 
         return self._decodeResponse('defineHardwareType', rsp)
         
@@ -219,7 +224,7 @@ class Connection:
             jhInstall    - Name of job harness installation. Required
         Return status
         '''
-        rsp = self._make_query('runAutomatable', 'runHarnessedById', **kwds)
+        rsp = self.__make_query('runAutomatable', 'runHarnessedById', **kwds)
         if self.debug:
             rsp = {'acknowledge' : None, 'command' : 'lcatr-harness with options'}
         harnessedCommand = self._decodeResponse('runAutomatable', rsp)
@@ -246,7 +251,7 @@ class Connection:
         Return status
         '''
 
-        rsp = self._make_query('runAutomatable', 'runHarnessed', **kwds)
+        rsp = self.__make_query('runAutomatable', 'runHarnessed', **kwds)
         if self.debug:
             rsp = {'acknowledge' : None, 'command' : 'lcatr-harness with options'}
 
@@ -272,10 +277,10 @@ class Connection:
         Returns:
             If successful, new id
         '''
-        self._checkSlotNames(**kwds)
-        rsp = self._make_query('defineRelationshipType', 
-                               'defineRelationshipType',
-                               **kwds)
+        revisedKwds = self.__check_slotnames(**kwds)
+        rsp = self.__make_query('defineRelationshipType', 
+                                'defineRelationshipType',
+                                **revisedKwds)
         return self._decodeResponse('defineReleationshipType', rsp)
 
     def defineRelationshipTypeById(self, **kwds):
@@ -289,13 +294,13 @@ class Connection:
             numItems - defaults to 1
             slotNames - single string or list of strings
         '''
-        self._checkSlotNames(**kwds)
-        rsp = self._make_query('defineRelationshipType', 
-                               'defineRelationshipTypeById',
-                               **kwds)
+        revisedKwds = self.__check_slotnames(**kwds)
+        rsp = self.__make_query('defineRelationshipType', 
+                                'defineRelationshipTypeById',
+                                **revisedKwds)
         return self._decodeResponse('defineReleationshipType', rsp)
 
-    def _checkSlotNames(self, **kwds):
+    def __check_slotnames(self, **kwds):
         '''
         Looks for properly formatted and consistent values for 
         numItems and slotNames.  In case there are multiple
@@ -310,6 +315,7 @@ class Connection:
             raise ValueError, 'Missing slotName argument'
 
         slist = k['slotNames']
+
         if isinstance(slist, str): slist = [slist]
 
         if not isinstance(slist, list):
@@ -324,7 +330,7 @@ class Connection:
             raise ValueError, 'Wrong number of slotnames'
 
         kwds['slotNames'] = string.join(slist, ',')
-        return
+        return kwds
 
     def _decodeResponse(self, command, rsp):
         '''

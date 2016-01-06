@@ -6,9 +6,10 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Raw', prodServer=False)
 newId = ''
 try: 
-    newId=myConn.defineHardwareType(name='applePie', 
+    newId=myConn.defineHardwareType(name='sprinkles', 
                                     description='type defined via eT API',
-                                    sequenceWidth='0')
+                                    batchedFlag=1,
+                                    sequenceWidth='2')
     print 'New hardware type defined.  Returned id is ', newId
     sys.exit(0)
 except Exception,msg:
