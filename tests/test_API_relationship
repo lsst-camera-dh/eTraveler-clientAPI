@@ -6,13 +6,21 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Raw', prodServer=False) # debug=True)
 newId = ''
 try: 
-    newId=myConn.defineRelationshipType(name='alaMode', 
-                                        description='rel type via eT API',
-                                        hardwareTypeName='applePie',
-                                        numItems=2,
-                                        minorTypeName='iceCream',
-                                        slotNames=['scoopOne', 'scoopTwo']
-                                        )
+    #newId=myConn.defineRelationshipType(name='alaMode', 
+    #                                    description='rel type via eT API',
+    #                                    hardwareTypeName='applePie',
+    #                                    numItems=2,
+    #                                    minorTypeName='iceCream',
+    #                                    slotNames=['scoopOne', 'scoopTwo']
+    #                                    )
+    newId=myConn.defineRelationshipTypeById(name='alaModeById', 
+                                            description='rel type by id via eT API',
+                                            hardwareTypeId='23',
+                                            numItems=3,
+                                            minorTypeId='387',
+                                            slotNames=['bottom', 'middle', 
+                                                       'top']
+                                            )
     print 'New relationship type defined.  Returned id is ', newId
     sys.exit(0)
 except Exception,msg:
