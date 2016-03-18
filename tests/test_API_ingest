@@ -4,9 +4,21 @@ import sys
 from  eTraveler.clientAPI.connection import Connection
 
 fpath = "/Users/jrb/lsst-camera-dh/eTraveler-travelerDefinition/test/yaml/simpleMulti.yaml"
+# Uncomment following to exercise failure
+#fpath = "/Users/jrb/lsst-camera-dh/eTraveler-travelerDefinition/test/yaml/badNames.yaml"
+
+f = open(fpath)
+c = ''
+next = f.readline()
+while len(next) > 0:
+      c += next
+      next = f.readline()
+      
 myConn = Connection('jrb', 'Raw', prodServer=False)
 try: 
-    msg = myConn.validateYaml(filepath=fpath, reason='testing')
+    msg = myConn.validateYaml(filepath=fpath)
+    #msg = myConn.uploadYaml(filepath=fpath, reason='testing')
+    #msg = myConn.validateYaml(contents=c)
 
     print "Results from validate: ", msg
     sys.exit(0)

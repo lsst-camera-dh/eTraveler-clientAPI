@@ -321,7 +321,7 @@ class Connection:
         rqst = dict({})
         cmd = 'uploadYaml'
         rqst = self._reviseContents(k)
-        print rqst['contents']
+        #print rqst['contents']
         rsp = self.__make_query(cmd, 'validateYaml', **rqst)
         return self._decodeResponse(cmd, rsp)
 
