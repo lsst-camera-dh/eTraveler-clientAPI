@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+
+fpath = "/Users/jrb/lsst-camera-dh/eTraveler-travelerDefinition/test/yaml/simpleMulti.yaml"
+myConn = Connection('jrb', 'Raw', prodServer=False)
+try: 
+    msg = myConn.validateYaml(filepath=fpath, reason='testing')
+
+    print "Results from validate: ", msg
+    sys.exit(0)
+except Exception,msg:
+    print 'Validation failed with exception: '
+    print  msg
+    sys.exit(1)
+

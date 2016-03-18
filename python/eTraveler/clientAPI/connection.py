@@ -37,6 +37,9 @@ class Connection:
         'defineRelationshipTypeById' : ['name', 'description', 'hardwareTypeId',
                                         'minorTypeId', 'numItems', 'slotNames',
                                         'operator'],
+        'validateYaml' : ['contents', 'validateOnly', 'operator'],
+        'uploadYaml' : ['contents', 'reason', 'responsible',
+                        'validateOnly', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -51,6 +54,8 @@ class Connection:
                                     'description' : None},
         'defineRelationshipTypeById' : {'operator' : None, 'numItems' : 1,
                                         'description' : None},
+        'validateYaml' : {'operator' : None, 'validateOnly' : 'true'},
+        'uploadYaml' : {'operator' : None, 'validateOnly' : 'false'},
         }
         
         
@@ -298,8 +303,54 @@ class Connection:
         rsp = self.__make_query('defineRelationshipType', 
                                 'defineRelationshipTypeById',
                                 **revisedKwds)
-        return self._decodeResponse('defineReleationshipType', rsp)
+        return self._decodeResponse('defineRelationshipType', rsp)
 
+    def validateYaml(self, **kwds):
+        '''
+        Check that supplied traveler definition follows YAML syntax,
+        uses only allowed keywords, and is compatible with database
+        specified in connection (insofar as that can be confirmed without
+        actual ingest).
+        Keyword Arguments:
+            filepath - file containing YAML
+                   OR
+            contents - YAML to be ingested as a string
+        Return: String 'Success' if operation succeeded, else error msg
+        '''
+        k = dict(kwds)
+        rqst = dict({})
+        cmd = 'uploadYaml'
+        rqst = self._reviseContents(k)
+        print rqst['contents']
+        rsp = self.__make_query(cmd, 'validateYaml', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
+    def uploadYaml(self, **kwds):
+        '''
+        Validates as above, then ingests traveler into db associated 
+        with connection.
+
+        Keyword Arguments:
+            filepath - file containing YAML
+                   OR
+            content - YAML to be ingested as a string
+            responsible - responsible person for this traveler. Defaults
+                          to operator
+            reason - non-empty string describing purpose of traveler 
+                     and/or reason for new version
+                    
+        Return: String 'Success' if operation succeeded, else error msg
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'uploadYaml'
+        rqst  = self._reviseContents(k)
+        if 'responsible' in k: rqst['responsible'] = k['responsible']
+        else: rqst['responsible'] = self.operator
+        if 'reason' in k: rqst['reason'] = k['reason']
+        rsp = self.__make_query(cmd, 'uploadYaml', **rqst)
+        return self._decodeResponse(cmd, rsp)
+    
     def __check_slotnames(self, **kwds):
         '''
         Looks for properly formatted and consistent values for 
@@ -332,6 +383,20 @@ class Connection:
         kwds['slotNames'] = string.join(slist, ',')
         return kwds
 
+    def _reviseContents(self, k):
+        if 'contents' in k:
+            return k
+        elif 'filepath' in k:
+            cnt = ''
+            fp = k.pop('filepath')
+            with open(fp) as f:
+                for line in f:
+                    cnt += line
+                k['contents'] = cnt
+        else:
+            raise ValueError, 'No input yaml. Use contents or filepath keyword'
+        return k
+            
     def _decodeResponse(self, command, rsp):
         '''
         Common error handling for response to query. If good response,
@@ -340,6 +405,7 @@ class Connection:
         if type(rsp) is dict:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
+                elif (command == 'uploadYaml'): return 'Success'
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '
