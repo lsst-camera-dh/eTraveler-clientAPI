@@ -23,8 +23,8 @@ class Connection:
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
                               'manufacturerId', 'model', 'manufactureDate',
                               'manufacturer', 'operator', 'quantity'],
-        'defineHardwareType' : ['name', 'description', 'sequenceWidth',
-                                'subsystem', 'batchedFlag', 'operator'],
+        'defineHardwareType' : ['name', 'description', 'subsystem',
+                                'sequenceWidth', 'batchedFlag', 'operator'],
         'runHarnessedById' : ['hardwareId', 'travelerName',
                               'travelerVersion', 'hardwareGroup', 'site',
                               'jhInstall', 'operator'],
@@ -40,6 +40,10 @@ class Connection:
         'validateYaml' : ['contents', 'validateOnly', 'operator'],
         'uploadYaml' : ['contents', 'reason', 'responsible',
                         'validateOnly', 'operator'],
+        'setHardwareStatus' : ['experimentSN', 'htype','attributeName','reason',
+                               'adding', 'activityId', 'operator'],
+        'adjustHardwareLabel' : ['experimentSN','htype', 'attributeName',
+                                 'adding', 'reason', 'activityId', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -56,6 +60,11 @@ class Connection:
                                         'description' : None},
         'validateYaml' : {'operator' : None, 'validateOnly' : 'true'},
         'uploadYaml' : {'operator' : None, 'validateOnly' : 'false'},
+        'setHardwareStatus' : {'operator' : None, 'reason' : 'Set via API',
+                               'adding' : 'NA', 'activityId' : None},
+        'adjustHardwareLabel' : {'operator' : None, 'adding' : 'true',
+                                 'reason' : 'Adjusted via API',
+                                 'activityId' : None},
         }
         
         
@@ -191,6 +200,7 @@ class Connection:
             name   - required.  Name of new type.  May not have 
                 embedded blanks or certain other special characters
             description - optional but strongly recommended!
+            subsystem - short name for subsystem 
             sequenceWidth - # of digits in auto-generated serial numbers
                 defaults to 4.  Value of 0 means "don't auto-generate"
             subsystem - defaults to 'Default'

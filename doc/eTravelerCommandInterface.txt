@@ -4,24 +4,24 @@ commands though value may be empty string or null for some of them.
 1. Command name:  defineHardwareType
 
 Input parameters  (name and use):
-
+--------------------------------
 name           HardwareType.name
 description    HardwareType.description
+subsystem      Subsystem.shortName
 sequenceWidth  HardwareType.autoSequenceWidth
 batchedFlag    HardwareType.isBatched
 operator       HardwareType.createdBy
 
-(Do we also want a trackingType parameter?)
 
 Returns   (name and meaning)
-
+--------------------------------
 id            HardwareType.id if successful, else '0' or null
 acknowledge   Null if successful, else error string
 
 2. Command name: registerHardware
 
 Input parameters (name and use)
-
+--------------------------------
 htype           HardwareType.name  (must match existing hardware type)
 site            Site.name
 location        Location.name (where Location.siteId = Site.id for above site)
@@ -34,14 +34,17 @@ quantity        BatchedInventoryHistory.adjustment   [int]
 operator        Hardware.createdBy
 
 Returns (name and meaning)
-
+--------------------------------
 id            Hardware.id if successful, else '0' or null
 acknowledge   Null if successful, else error string
 
 3. Command name: runAutomatable
 
 Input parameters (name and use)
+--------------------------------
 hardwareId      Hardware.id   for existing registered component
+experimentSN    Hardware.lsstId  (mutually exclusive with hardwareId)
+htype           HardwareType.name (needed only if experimentSN is used)
 travelerName    Process.name where Process.id = TravelerType.rootProcessId
 travelerVersion Process.version or empty string, denoting most recent active
 hardwareGroup   HardwareGroup.name needed to uniquely specify traveler
@@ -50,13 +53,15 @@ jhInstall       JobHarness.name
 operator        Activity.createdBy
 
 Returns (name and meaning)
-
+---------------------------
 command         Command string to be executed locally, or null if failure
 acknowledge     Null if successful, else error string
 
 4. Command name: runOneStep
+No python client code for this yet.  No one seems to care about it.
 
 Input parameters (name and use)
+--------------------------------
 hardwareId      Hardware.id   for existing registered component
 travelerName    Process.name where Process.id = TravelerType.rootProcessId
 travelerVersion Process.version or empty string, denoting most recent active
@@ -64,8 +69,60 @@ hardwareGroup   HardwareGroup.name needed to uniquely specify traveler
 operator        Activity.createdBy
 oepratorInputs  Null or dict of key-value pairs where the key =
                 InputPattern.label (and InputPattern.processId = Process.id)
+As for runHarnessed, hardwareId may be replaced by experimentSN + htype
 
 Returns (name and meaning)
-
+--------------------------
 acknowledge     Null if successful, else error string
 
+5. Command name:  defineRelationshipType
+Input parameters (name and use)
+--------------------------------
+name             MultiRelationshipType.name
+description      MultiRelationshipType.description
+hardwareTypeName 
+  or
+hardwareTypeId   MultiRelationshipType.hardwareTypeId
+minorTypeName
+  or
+minortypeId      MultiRelationshipType.minorTypeId
+numItems         MultiRelationshipType.nMinorItems
+slotNames        MultiRelationshipSlotType.slotname
+operator         MultiRelationshipType.createdBy,
+                 MultiRelationshipSlotType.createdBy
+
+Returns (name and meaning)
+---------------------------
+id            MultiRelationshipType.id if successful, else '0' or null
+acknowledge   Null if successful, else error string
+
+6. Command name: uploadYaml
+
+Input parameters (name and use)
+--------------------------------
+contents         String representation of yaml input
+validateOnly     If true, validate against db but do not actually ingest
+reason           eRequired only if validateOnly is 'false'  TravelerType.reason
+responsible      Defaults to same value as operator      TravlerType.owner
+operator         TravelerType.createdBy
+
+Returns (name and meaning)
+--------------------------
+acknowledge        Null if successful, else error string
+
+7. Command name: setHardwareStatus
+
+Input parameters (name and use)
+-------------------------------
+experimentSN      Hardware.lsstId
+htype             HardwareType.name
+attributeName     HardwareStatus.name   (may be status or label)
+adding            'true' for label to be added, 'false' for label to be
+                  removed, 'NA' if attribute is a hardware status
+reason            HardwareStatusHistory.reason
+activityId        HardwareStatusHistory.activityId
+operator          HardwareStatusHistory.createdBy
+
+Returns (name and meaning)
+--------------------------
+acknowledge        Null if successful, else error string
