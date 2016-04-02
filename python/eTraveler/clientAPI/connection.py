@@ -24,7 +24,7 @@ class Connection:
                               'manufacturerId', 'model', 'manufactureDate',
                               'manufacturer', 'operator', 'quantity'],
         'defineHardwareType' : ['name', 'description', 'sequenceWidth',
-                                'batchedFlag', 'operator'],
+                                'subsystem', 'batchedFlag', 'operator'],
         'runHarnessedById' : ['hardwareId', 'travelerName',
                               'travelerVersion', 'hardwareGroup', 'site',
                               'jhInstall', 'operator'],
@@ -45,7 +45,7 @@ class Connection:
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
         'runHarnessed' : {'operator' : None, 'travelerVersion' : ''}, 
         'defineHardwareType' : {'sequenceWidth' : 4, 'batchedFlag' : 0,
-                                'operator' : None},
+                                'subsystem' : 'Default', 'operator' : None},
         'registerHardware' : {'experimentSN' : '', 'manufacturerId' : '', 
                               'model' : '',
                               'manufactureDate' : '', 'manufacturer' : '',
@@ -193,6 +193,7 @@ class Connection:
             description - optional but strongly recommended!
             sequenceWidth - # of digits in auto-generated serial numbers
                 defaults to 4.  Value of 0 means "don't auto-generate"
+            subsystem - defaults to 'Default'
             batchedFlag - defaults to 0  (false)
 
         Returns:

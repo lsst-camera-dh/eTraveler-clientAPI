@@ -6,8 +6,9 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Raw', prodServer=False)
 newId = ''
 try: 
-    newId=myConn.defineHardwareType(name='sprinkles', 
+    newId=myConn.defineHardwareType(name='more_sprinkles', 
                                     description='type defined via eT API',
+                                    subsystem='Legacy',
                                     batchedFlag=1,
                                     sequenceWidth='2')
     print 'New hardware type defined.  Returned id is ', newId
