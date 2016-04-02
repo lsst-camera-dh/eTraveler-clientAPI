@@ -361,6 +361,43 @@ class Connection:
         if 'reason' in k: rqst['reason'] = k['reason']
         rsp = self.__make_query(cmd, 'uploadYaml', **rqst)
         return self._decodeResponse(cmd, rsp)
+
+        def setHardwareStatus(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN  identifier for component whose status will be set
+           htype         hardware type of component
+           status        new status to be set (e.g. READY, REJECTED, etc.)
+           reason        defaults to 'Set by API'
+           activityId    defaults to None
+        Returns: String 'Success' if operation succeeded, else error msg
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall(cmd, k)
+        cmd = 'setHardwareStatus'
+        rsp = self.__make_query(cmd, 'setHardwareStatus', **kwds)
+        return self._decodeResponse(cmd, rsp)
+
+    def adjustHardwareLabel(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN  identifier for component whose status will be set
+           htype         hardware type of component
+           label         label to be added or removed
+           adding        'true' to add, 'false' for remove.  Default 'true'
+           reason        defaults to 'Set by API'
+           activityId    defaults to None
+        Returns: String 'Success' if operation succeeded, else error msg
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'setHardwareStatus'
+        rqst = self._reviseCall(cmd, k)
+        rsp = self.__make_query(cmd, 'adjustHardwareLabel', **kwds)
+        return self._decodeResponse(cmd, rsp)
+    
+
     
     def __check_slotnames(self, **kwds):
         '''
@@ -407,6 +444,18 @@ class Connection:
         else:
             raise ValueError, 'No input yaml. Use contents or filepath keyword'
         return k
+
+    def _reviseCall(self, cmd, k):
+        if cmd == 'setHardwareStatus':
+            if 'label' in k:
+                k['attributeName'] = k['label']
+                del k['label']
+            elif 'status' in k:
+                k['attributeName'] = k['status']
+                del k['status']
+        else:
+            raise ValueError, 'Dont know how to revise command ' + cmd
+        return k
             
     def _decodeResponse(self, command, rsp):
         '''
@@ -416,7 +465,8 @@ class Connection:
         if type(rsp) is dict:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
-                elif (command == 'uploadYaml'): return 'Success'
+                elif (command in ['uploadYaml', 'setHardwareStatus']):
+                    return 'Success'
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '
