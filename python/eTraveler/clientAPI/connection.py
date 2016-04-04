@@ -258,7 +258,7 @@ class Connection:
         Traveler must be automatable
         Arguments: 
             experimentSN  - Experiment serial number. Required
-            hardwareType  - Required
+            htype  - Required
             travelerName - Required
             travelerVersion - defaults to most recent active version
             hardwareGroup - required
