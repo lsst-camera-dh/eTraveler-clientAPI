@@ -6,11 +6,11 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Raw', prodServer=False)
 try: 
     msg = myConn.setHardwareStatus(experimentSN='boojum-01', htype='boojum',
-                                   newStatus='REJECTED')
+                                   attributeName='REJECTED')
     
     print "Results from setHardwareStatus: ", msg
     msg = myConn.adjustHardwareLabel(experimentSN='boojum-02', htype='boojum',
-                                     label='non-compliant', adding='true',
+                                     attributeName='non-compliant', adding='true',
                                      reason='made me invisible')
     sys.exit(0)
 except Exception,msg:

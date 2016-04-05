@@ -362,7 +362,7 @@ class Connection:
         rsp = self.__make_query(cmd, 'uploadYaml', **rqst)
         return self._decodeResponse(cmd, rsp)
 
-        def setHardwareStatus(self, **kwds):
+    def setHardwareStatus(self, **kwds):
         '''
         Keyword Arguments:
            experimentSN  identifier for component whose status will be set
@@ -370,12 +370,12 @@ class Connection:
            status        new status to be set (e.g. READY, REJECTED, etc.)
            reason        defaults to 'Set by API'
            activityId    defaults to None
-        Returns: String 'Success' if operation succeeded, else error msg
+        Returns: String "Success" if operation succeeded, else error msg
         '''
         k = dict(kwds)
         rqst = {}
-        rqst = self._reviseCall(cmd, k)
         cmd = 'setHardwareStatus'
+        rqst = self._reviseCall(cmd, k)
         rsp = self.__make_query(cmd, 'setHardwareStatus', **kwds)
         return self._decodeResponse(cmd, rsp)
 
