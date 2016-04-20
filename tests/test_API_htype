@@ -6,7 +6,7 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Raw', prodServer=False)
 newId = ''
 try: 
-    newId=myConn.defineHardwareType(name='more_sprinkles', 
+    newId=myConn.defineHardwareType(name='still_more_sprinkles', 
                                     description='type defined via eT API',
                                     subsystem='Legacy',
                                     batchedFlag=1,
