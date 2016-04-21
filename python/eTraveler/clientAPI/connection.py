@@ -40,9 +40,11 @@ class Connection:
         'validateYaml' : ['contents', 'validateOnly', 'operator'],
         'uploadYaml' : ['contents', 'reason', 'responsible',
                         'validateOnly', 'operator'],
-        'setHardwareStatus' : ['experimentSN', 'htype','attributeName','reason',
+        'setHardwareStatus' : ['experimentSN', 'hardwareTypeName',
+                               'hardwareStatusName','reason',
                                'adding', 'activityId', 'operator'],
-        'adjustHardwareLabel' : ['experimentSN','htype', 'attributeName',
+        'adjustHardwareLabel' : ['experimentSN','hardwareTypeName',
+                                 'hardwareStatusName',
                                  'adding', 'reason', 'activityId', 'operator'],
         }
     APIdefaults = { 
@@ -163,8 +165,12 @@ class Connection:
             print "Text: ", r.text
             print "this is type of what I got: ", type(r)
 
+            print 'text input: \n'
+            print r.text
+            
         try:
             rsp = r.json()
+
             return rsp
         except ValueError, msg:
             # for now just reraise
@@ -376,7 +382,9 @@ class Connection:
         rqst = {}
         cmd = 'setHardwareStatus'
         rqst = self._reviseCall(cmd, k)
-        rsp = self.__make_query(cmd, 'setHardwareStatus', **kwds)
+        ##print 'rqst is \n'
+        ##print rqst
+        rsp = self.__make_query(cmd, 'setHardwareStatus', **rqst)
         return self._decodeResponse(cmd, rsp)
 
     def adjustHardwareLabel(self, **kwds):
@@ -394,7 +402,7 @@ class Connection:
         rqst = {}
         cmd = 'setHardwareStatus'
         rqst = self._reviseCall(cmd, k)
-        rsp = self.__make_query(cmd, 'adjustHardwareLabel', **kwds)
+        rsp = self.__make_query(cmd, 'adjustHardwareLabel', **rqst)
         return self._decodeResponse(cmd, rsp)
     
 
@@ -446,12 +454,15 @@ class Connection:
         return k
 
     def _reviseCall(self, cmd, k):
+        
         if cmd == 'setHardwareStatus':
+            k['hardwareTypeName'] = k['htype']
+            del k['htype']
             if 'label' in k:
-                k['attributeName'] = k['label']
+                k['hardwareStatusName'] = k['label']
                 del k['label']
             elif 'status' in k:
-                k['attributeName'] = k['status']
+                k['hardwareStatusName'] = k['status']
                 del k['status']
         else:
             raise ValueError, 'Dont know how to revise command ' + cmd
