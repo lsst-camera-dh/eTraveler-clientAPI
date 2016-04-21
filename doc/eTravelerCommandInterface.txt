@@ -114,14 +114,14 @@ acknowledge        Null if successful, else error string
 
 Input parameters (name and use)
 -------------------------------
-experimentSN      Hardware.lsstId
-htype             HardwareType.name
-attributeName     HardwareStatus.name   (may be status or label)
-adding            'true' for label to be added, 'false' for label to be
-                  removed, 'NA' if attribute is a hardware status
-reason            HardwareStatusHistory.reason
-activityId        HardwareStatusHistory.activityId
-operator          HardwareStatusHistory.createdBy
+experimentSN        Hardware.lsstId
+hardwareTypeName    HardwareType.name
+hardwareStatusName  HardwareStatus.name   (may be status or label)
+adding              'true' for label to be added, 'false' for label to be
+                    removed, 'NA' if attribute is a hardware status
+reason              HardwareStatusHistory.reason
+activityId          HardwareStatusHistory.activityId
+operator            HardwareStatusHistory.createdBy
 
 Returns (name and meaning)
 --------------------------
