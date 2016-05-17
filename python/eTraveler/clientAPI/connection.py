@@ -46,6 +46,9 @@ class Connection:
         'adjustHardwareLabel' : ['experimentSN','hardwareTypeName',
                                  'hardwareStatusName',
                                  'adding', 'reason', 'activityId', 'operator'],
+        'setHardwareLocation' : ['experimentSN', 'hardwareTypeName',
+                                 'locationName', 'siteName', 'reason',
+                                 'activityId', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -66,6 +69,9 @@ class Connection:
                                'adding' : 'NA', 'activityId' : None},
         'adjustHardwareLabel' : {'operator' : None, 'adding' : 'true',
                                  'reason' : 'Adjusted via API',
+                                 'activityId' : None},
+        'setHardwareLocation' : {'operator' : None, 'siteName' : None,
+                                 'reason' : 'Adjusted via API', 
                                  'activityId' : None},
         }
         
@@ -405,7 +411,24 @@ class Connection:
         rsp = self.__make_query(cmd, 'adjustHardwareLabel', **rqst)
         return self._decodeResponse(cmd, rsp)
     
-
+    def setHardwareLocation(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN  identifier for component whose status will be set
+           htype         hardware type of component
+           locationName  new location for component
+           siteName      new site for component.  Defaults to None (i.e.,
+                         keep current site)
+           reason        defaults to 'Set by API'
+           activityId    defaults to None
+        Returns: String "Success" if operation succeeded, else error msg
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'setHardwareLocation'
+        rqst = self._reviseCall(cmd, k)
+        rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
+        return self._decodeResponse(cmd, rsp)
     
     def __check_slotnames(self, **kwds):
         '''
@@ -464,6 +487,11 @@ class Connection:
             elif 'status' in k:
                 k['hardwareStatusName'] = k['status']
                 del k['status']
+            else:
+                raise ValueError, 'Missing label or status argument'
+        elif cmd == 'setHardwareLocation':
+            k['hardwareTypeName'] = k['htype']
+            del k['htype']
         else:
             raise ValueError, 'Dont know how to revise command ' + cmd
         return k
