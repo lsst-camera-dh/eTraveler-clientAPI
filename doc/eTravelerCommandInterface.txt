@@ -126,3 +126,19 @@ operator            HardwareStatusHistory.createdBy
 Returns (name and meaning)
 --------------------------
 acknowledge        Null if successful, else error string
+
+8. Command name: setHardwareLocation
+
+Input parameters (name and use)
+-------------------------------
+experimentSN        Hardware.lsstId
+hardwareTypeName    HardwareType.name
+locationName        Location.name  
+siteName            Site.name    If null, use component's current site
+reason              HardwareLocationHistory.reason
+activityId          HardwareLocationHistory.activityId
+operator            HardwareLocationHistory.createdBy
+
+Returns (name and meaning)
+--------------------------
+acknowledge        Null if successful, else error string
