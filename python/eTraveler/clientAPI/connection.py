@@ -17,7 +17,7 @@ def to_terminal(out):
 
 class Connection:
     prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
-    devServerUrl='http://srs.slac.stanford.edu/eTraveler/'
+    devServerUrl='http://lsst-camera-dev.slac.stanford.edu/eTraveler/'
 
     API = {
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
