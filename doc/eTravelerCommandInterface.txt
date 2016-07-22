@@ -142,3 +142,60 @@ operator            HardwareLocationHistory.createdBy
 Returns (name and meaning)
 --------------------------
 acknowledge        Null if successful, else error string
+
+9. Command name: getHardwareHierarchy
+
+Input parameter (name and use)
+------------------------------
+experimentSN       Hardware.lsstId
+hardwareTypeName   HardwareType.name
+noBatched          If true don't include elements where child
+                   hardware type is batched  (parent hardware type can
+                   never be batched in any case)
+
+Returns (name and meaning)
+--------------------------
+acknowledge        Null if successful, else error string
+hierarchy          An array of dicts, each with key-value pairs as described:
+
+key                              value
+-------------------              -----------------------
+level                            non-negative integer
+parent_experimentSN              Hardware.lsstId
+parent_hardwareTypeName          HardwareType.name
+parent_id                        Hardware.id
+child_experimentSN               Hardware.lsstId
+child_hardwareTypeName           HardwareType.name
+child_id                         Hardware.id
+relationshipTypeName             MultiRelationshipType.name
+slotName                         MultiRelationshipSlotType.name
+
+Value of "level" is 0 if parent_experimentSN, parent_hardwareTypeName
+match the arguments, and otherwise equal to n+1 if there is a row with
+level n and child in that row is identical to parent in the current row.
+
+The level 0 rows are filled by finding all MultiRelationshipSlot rows with
+hardwareId corresponding to instance with supplied Hardware.lsstId and
+HardwareType.name.
+
+Rows of level n+1 are obtained by repeating the procedure but with
+MultiRelationshipSlot.hardwareId corresponding to child_id
+for some row of level n.
+
+The columns parent_experimentSN, parent_hardwareTypeName, child_experimentSN,
+child_hardwareTypeName are included for the convenience of the client. They
+could be derived form parent_id and child_id.
+
+The information will be presented to the client as an array of maps, so
+that the appropriate column name is explicitly associated with each value.
+TBD: whether the information is already in this form when returned
+from the Front-end or whether it is transmitted in a more compact form
+and the map is created by the client side of the API.  For first draft,
+Front-end will return array of maps.
+
+Clients will almost certainly want filtering: e.g., return only those rows
+referencing CCDs or referencing hardware on the path to CCDs.  For queries
+where the hardware type is raft it ought to be sufficient to filter
+after the data have been sent.
+
+

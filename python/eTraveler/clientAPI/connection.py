@@ -49,6 +49,8 @@ class Connection:
         'setHardwareLocation' : ['experimentSN', 'hardwareTypeName',
                                  'locationName', 'siteName', 'reason',
                                  'activityId', 'operator'],
+        'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
+                                  'noBatched', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -73,6 +75,7 @@ class Connection:
         'setHardwareLocation' : {'operator' : None, 'siteName' : None,
                                  'reason' : 'Adjusted via API', 
                                  'activityId' : None},
+        'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
         }
         
         
@@ -429,6 +432,31 @@ class Connection:
         rqst = self._reviseCall(cmd, k)
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
+
+    def getHardwareHierarchy(self, **kweds):
+        '''
+        Keyword Arguments:
+            experimentSN  identifier for component for which subcomponent
+                          information is to be returned
+            htype         hardware type of the component
+            noBatched     flag used for filtering output.  If true (default)
+                          information about batched subcomponents will not
+                          be returned
+        Returns:
+            If successful, array of dicts, each containing the following
+            keys:
+            level, parent_experimentSN, parent_hardwareTypeName, 
+            child_experimentSN, child_hardwareTypeName, relationshipTypeName,
+            slotName as well as (redundant and typically not of interest
+            to clients) parent_id, child_id.
+            If unsuccessful, raises exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'getHardwareHierarchy'
+        rqst = self._reviseCall(cmd, k)
+        rsp = self.__make_query(cmd, 'getHardwareHierarchy', **rqst)
+        return self._decodeResponse(cmd, rsp)
     
     def __check_slotnames(self, **kwds):
         '''
@@ -489,7 +517,7 @@ class Connection:
                 del k['status']
             else:
                 raise ValueError, 'Missing label or status argument'
-        elif cmd == 'setHardwareLocation':
+        elif cmd == 'setHardwareLocation' or cmd == 'getHardwareHierarchy':
             k['hardwareTypeName'] = k['htype']
             del k['htype']
         else:
@@ -506,6 +534,8 @@ class Connection:
                 if (command == 'runAutomatable'): return rsp['command']
                 elif (command in ['uploadYaml', 'setHardwareStatus']):
                     return 'Success'
+                elif (command == 'getHardwareHierarchy'):
+                    return rsp['hierarchy']
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '
