@@ -17,7 +17,7 @@ def to_terminal(out):
 
 class Connection:
     prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
-    devServerUrl='http://srs.slac.stanford.edu/eTraveler/'
+    devServerUrl='http://lsst-camera-dev.slac.stanford.edu/eTraveler/'
 
     API = {
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
@@ -145,6 +145,12 @@ class Connection:
 
         posturl = self.baseurl + command
 
+        #if command == 'setHardwareLocation':
+        #    print 'Original query string: '
+        #    print str(query)
+        #    print 'json version: '
+        #    print str(jdata)
+        #    print 'Posting to ' + str(posturl)
         if self.debug:
             if 'slotNames' in kwds:
                 print 'Value of slotNames: '
@@ -430,6 +436,9 @@ class Connection:
         rqst = {}
         cmd = 'setHardwareLocation'
         rqst = self._reviseCall(cmd, k)
+        #print 'setHardwareLocation called.  rqst parameters will be\n'
+        #for k in rqst:
+        #    print 'key %s, value %s'%(k, rqst[k])
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
 
@@ -532,7 +541,8 @@ class Connection:
         if type(rsp) is dict:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
-                elif (command in ['uploadYaml', 'setHardwareStatus']):
+                elif (command in ['uploadYaml', 'setHardwareStatus',
+                                  'setHardwareLocation']):
                     return 'Success'
                 elif (command == 'getHardwareHierarchy'):
                     return rsp['hierarchy']

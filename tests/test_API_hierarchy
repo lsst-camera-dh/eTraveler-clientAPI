@@ -6,7 +6,7 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Test', prodServer=False)
 rsp = []
 try: 
-    rsp = myConn.getHardwareHierarchy(experimentSN='boojum-0001',
+    rsp = myConn.getHardwareHierarchy(experimentSN='seven',
     	                              htype='boojum',
                                       noBatch='false')
     print "Results from getHardwareHierarchy unfiltered:"
@@ -15,9 +15,9 @@ try:
         print("Examining array element %d", iDict)
         for k in d:
             print('For key {0} value is {1}'.format(k, d[k]))
-        iDict++
+        iDict +=1
 
-    rsp = myConn.getHardwareHierarchy(experimentSN='boojum-0001',
+    rsp = myConn.getHardwareHierarchy(experimentSN='seven',
     	                              htype='boojum')
     print "Results from getHardwareHierarchy with noBatch filtering:"
     iDict = 0
@@ -25,7 +25,7 @@ try:
         print("Examining array element %d", iDict)
         for k in d:
             print('For key {0} value is {1}'.format(k, d[k]))
-        iDict++
+        iDict +=1
 
     sys.exit(0)
 except Exception,msg:
