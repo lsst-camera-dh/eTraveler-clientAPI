@@ -46,6 +46,11 @@ class Connection:
         'adjustHardwareLabel' : ['experimentSN','hardwareTypeName',
                                  'hardwareStatusName',
                                  'adding', 'reason', 'activityId', 'operator'],
+        'setHardwareLocation' : ['experimentSN', 'hardwareTypeName',
+                                 'locationName', 'siteName', 'reason',
+                                 'activityId', 'operator'],
+        'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
+                                  'noBatched', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -67,6 +72,10 @@ class Connection:
         'adjustHardwareLabel' : {'operator' : None, 'adding' : 'true',
                                  'reason' : 'Adjusted via API',
                                  'activityId' : None},
+        'setHardwareLocation' : {'operator' : None, 'siteName' : None,
+                                 'reason' : 'Adjusted via API', 
+                                 'activityId' : None},
+        'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
         }
         
         
@@ -136,6 +145,12 @@ class Connection:
 
         posturl = self.baseurl + command
 
+        #if command == 'setHardwareLocation':
+        #    print 'Original query string: '
+        #    print str(query)
+        #    print 'json version: '
+        #    print str(jdata)
+        #    print 'Posting to ' + str(posturl)
         if self.debug:
             if 'slotNames' in kwds:
                 print 'Value of slotNames: '
@@ -405,7 +420,55 @@ class Connection:
         rsp = self.__make_query(cmd, 'adjustHardwareLabel', **rqst)
         return self._decodeResponse(cmd, rsp)
     
+    def setHardwareLocation(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN  identifier for component whose status will be set
+           htype         hardware type of component
+           locationName  new location for component
+           siteName      new site for component.  Defaults to None (i.e.,
+                         keep current site)
+           reason        defaults to 'Set by API'
+           activityId    defaults to None
+        Returns: String "Success" if operation succeeded, else error msg
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'setHardwareLocation'
+        rqst = self._reviseCall(cmd, k)
+        #print 'setHardwareLocation called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
+        rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
+        return self._decodeResponse(cmd, rsp)
 
+    def getHardwareHierarchy(self, **kwds):
+        '''
+        Keyword Arguments:
+            experimentSN  identifier for component for which subcomponent
+                          information is to be returned
+            htype         hardware type of the component
+            noBatched     flag used for filtering output.  If true (default)
+                          information about batched subcomponents will not
+                          be returned
+        Returns:
+            If successful, array of dicts, each containing the following
+            keys:
+            level, parent_experimentSN, parent_hardwareTypeName, 
+            child_experimentSN, child_hardwareTypeName, relationshipTypeName,
+            slotName as well as (redundant and typically not of interest
+            to clients) parent_id, child_id.
+            If unsuccessful, raises exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'getHardwareHierarchy'
+        rqst = self._reviseCall(cmd, k)
+        #print 'getHardwareHierarchy called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
+        rsp = self.__make_query(cmd, 'getHardwareHierarchy', **rqst)
+        return self._decodeResponse(cmd, rsp)
     
     def __check_slotnames(self, **kwds):
         '''
@@ -464,6 +527,11 @@ class Connection:
             elif 'status' in k:
                 k['hardwareStatusName'] = k['status']
                 del k['status']
+            else:
+                raise ValueError, 'Missing label or status argument'
+        elif cmd == 'setHardwareLocation' or cmd == 'getHardwareHierarchy':
+            k['hardwareTypeName'] = k['htype']
+            del k['htype']
         else:
             raise ValueError, 'Dont know how to revise command ' + cmd
         return k
@@ -476,8 +544,11 @@ class Connection:
         if type(rsp) is dict:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
-                elif (command in ['uploadYaml', 'setHardwareStatus']):
+                elif (command in ['uploadYaml', 'setHardwareStatus',
+                                  'setHardwareLocation']):
                     return 'Success'
+                elif (command == 'getHardwareHierarchy'):
+                    return rsp['hierarchy']
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '

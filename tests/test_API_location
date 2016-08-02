@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+      
+myConn = Connection('jrb', 'Raw', prodServer=False)
+try: 
+    msg = myConn.setHardwareLocation(experimentSN='boojum-01', htype='boojum',
+                                     locationName='loc1',
+                                     siteName='test_locations')
+    print "Results from setHardwareLocation with site value: ", msg
+
+    
+    # Now try something which should fail since current site has no
+    # such location
+    msg = myConn.setHardwareLocation(experimentSN='boojum-02', htype='boojum',
+                                     locationName='Clean room')
+    
+
+    sys.exit(0)
+except Exception,msg:
+    print 'Operation failed with exception: '
+    print  msg
+    sys.exit(1)
+
