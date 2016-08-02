@@ -9,14 +9,11 @@ try:
                                      locationName='loc1',
                                      siteName='test_locations')
     print "Results from setHardwareLocation with site value: ", msg
-    msg = myConn.setHardwareLocation(experimentSN='boojum-01', htype='boojum',
-                                     locationName='storage')
-    
-    print "Results from setHardwareLocation with no site specified: ", msg
 
+    
     # Now try something which should fail since current site has no
     # such location
-    msg = myConn.setHardwareLocation(experimentSN='boojum-01', htype='boojum',
+    msg = myConn.setHardwareLocation(experimentSN='boojum-02', htype='boojum',
                                      locationName='Clean room')
     
 

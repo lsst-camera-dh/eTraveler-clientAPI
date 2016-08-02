@@ -437,12 +437,12 @@ class Connection:
         cmd = 'setHardwareLocation'
         rqst = self._reviseCall(cmd, k)
         #print 'setHardwareLocation called.  rqst parameters will be\n'
-        #for k in rqst:
-        #    print 'key %s, value %s'%(k, rqst[k])
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
 
-    def getHardwareHierarchy(self, **kweds):
+    def getHardwareHierarchy(self, **kwds):
         '''
         Keyword Arguments:
             experimentSN  identifier for component for which subcomponent
@@ -464,6 +464,9 @@ class Connection:
         rqst = {}
         cmd = 'getHardwareHierarchy'
         rqst = self._reviseCall(cmd, k)
+        #print 'getHardwareHierarchy called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'getHardwareHierarchy', **rqst)
         return self._decodeResponse(cmd, rsp)
     

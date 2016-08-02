@@ -2,30 +2,34 @@
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
-      
-myConn = Connection('jrb', 'Test', prodServer=False)
+
+# Use htype='boojum', experimentSN='seven' for Test db
+#myConn = Connection('jrb', 'Test', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=False)
 rsp = []
-try: 
-    rsp = myConn.getHardwareHierarchy(experimentSN='seven',
-    	                              htype='boojum',
-                                      noBatch='false')
+try:
+    #rsp = myConn.getHardwareHierarchy(experimentSN='seven',
+    #   	                              htype='boojum',
+    rsp = myConn.getHardwareHierarchy(experimentSN='dessert_01',
+    	                              htype='dessert',
+                                      noBatched='false')
     print "Results from getHardwareHierarchy unfiltered:"
     iDict = 0
     for d in rsp:
-        print("Examining array element %d", iDict)
+        print('Examining array element %d' % (iDict))
         for k in d:
             print('For key {0} value is {1}'.format(k, d[k]))
         iDict +=1
 
-    rsp = myConn.getHardwareHierarchy(experimentSN='seven',
-    	                              htype='boojum')
-    print "Results from getHardwareHierarchy with noBatch filtering:"
-    iDict = 0
-    for d in rsp:
-        print("Examining array element %d", iDict)
-        for k in d:
-            print('For key {0} value is {1}'.format(k, d[k]))
-        iDict +=1
+    #rsp = myConn.getHardwareHierarchy(experimentSN='seven',
+    #	                              htype='boojum')
+    #print "Results from getHardwareHierarchy with noBatch filtering:"
+    #iDict = 0
+    #for d in rsp:
+    #    print('Examining array element %d' % (iDict))
+    #    for k in d:
+    #        print('For key {0} value is {1}'.format(k, d[k]))
+    #    iDict +=1
 
     sys.exit(0)
 except Exception,msg:
