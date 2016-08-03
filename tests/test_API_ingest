@@ -16,7 +16,7 @@ fpath = "/Users/jrb/lsst-camera-dh/eTraveler-travelerDefinition/test/yaml/simple
 #      c += next
 #      next = f.readline()
       
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=True)
 try: 
     msg = myConn.validateYaml(filepath=fpath)
     #msg = myConn.uploadYaml(filepath=fpath, reason='testing')

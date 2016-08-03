@@ -5,7 +5,7 @@ from  eTraveler.clientAPI.connection import Connection
 
 # Use htype='boojum', experimentSN='seven' for Test db
 #myConn = Connection('jrb', 'Test', prodServer=False)
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = []
 try:
     #rsp = myConn.getHardwareHierarchy(experimentSN='seven',

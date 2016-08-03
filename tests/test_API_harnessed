@@ -3,7 +3,7 @@ import sys
 
 from  eTraveler.clientAPI.connection import Connection
 
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=True)
 
 try:
     myConn.runHarnessed(experimentSN='ITL-CCD-666', 

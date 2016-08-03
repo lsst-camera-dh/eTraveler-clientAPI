@@ -3,7 +3,7 @@ import sys
 
 from  eTraveler.clientAPI.connection import Connection
 
-myConn = Connection('jrb', 'Raw', prodServer=False) # debug=True)
+myConn = Connection('jrb', 'Raw', prodServer=True) # debug=True)
 newId = ''
 try: 
     #newId=myConn.defineRelationshipType(name='alaMode', 

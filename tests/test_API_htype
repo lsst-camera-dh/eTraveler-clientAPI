@@ -3,7 +3,7 @@ import sys
 
 from  eTraveler.clientAPI.connection import Connection
 
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=True)
 newId = ''
 try: 
     newId=myConn.defineHardwareType(name='still_more_sprinkles', 

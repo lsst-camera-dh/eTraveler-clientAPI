@@ -3,7 +3,7 @@ import sys
 
 from  eTraveler.clientAPI.connection import Connection
       
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=True)
 try: 
     msg = myConn.setHardwareLocation(experimentSN='boojum-01', htype='boojum',
                                      locationName='loc1',
