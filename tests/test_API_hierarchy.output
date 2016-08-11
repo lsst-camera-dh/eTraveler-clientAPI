@@ -1,0 +1,42 @@
+bash-3.2$ python test_API_hierarchy 
+Results from getHardwareHierarchy unfiltered:
+Examining array element 0
+For key child_hardwareTypeName value is dessert_plate
+For key parent_experimentSN value is dessert_01
+For key level value is 0
+For key relationshipTypeName value is Dessert_and_plate
+For key child_experimentSN value is dessert_plate-003
+For key parent_hardwareTypeName value is dessert
+For key parent_id value is 94
+For key child_id value is 97
+For key slotName value is the_plate
+Examining array element 1
+For key child_hardwareTypeName value is applePie
+For key parent_experimentSN value is dessert_01
+For key level value is 0
+For key relationshipTypeName value is Dessert_and_applePie
+For key child_experimentSN value is applePie_001
+For key parent_hardwareTypeName value is dessert
+For key parent_id value is 94
+For key child_id value is 103
+For key slotName value is the_pie
+Examining array element 2
+For key child_hardwareTypeName value is iceCream
+For key parent_experimentSN value is applePie_001
+For key level value is 1
+For key relationshipTypeName value is alaMode
+For key child_experimentSN value is iceCream_001
+For key parent_hardwareTypeName value is applePie
+For key parent_id value is 103
+For key child_id value is 99
+For key slotName value is [scoopOne
+Examining array element 3
+For key child_hardwareTypeName value is iceCream
+For key parent_experimentSN value is applePie_001
+For key level value is 1
+For key relationshipTypeName value is alaMode
+For key child_experimentSN value is iceCream_003
+For key parent_hardwareTypeName value is applePie
+For key parent_id value is 103
+For key child_id value is 101
+For key slotName value is  scoopTwo]
