@@ -40,3 +40,11 @@ For key parent_hardwareTypeName value is applePie
 For key parent_id value is 103
 For key child_id value is 101
 For key slotName value is  scoopTwo]
+
+----
+
+This output describes a component of type "dessert" which has two
+subcomponents of type "plate" and "applePie".  The pie has
+two subcomponents of type "iceCream".
+
+
