@@ -29,7 +29,7 @@ For key child_experimentSN value is iceCream_001
 For key parent_hardwareTypeName value is applePie
 For key parent_id value is 103
 For key child_id value is 99
-For key slotName value is [scoopOne
+For key slotName value is scoopOne
 Examining array element 3
 For key child_hardwareTypeName value is iceCream
 For key parent_experimentSN value is applePie_001
@@ -39,7 +39,7 @@ For key child_experimentSN value is iceCream_003
 For key parent_hardwareTypeName value is applePie
 For key parent_id value is 103
 For key child_id value is 101
-For key slotName value is  scoopTwo]
+For key slotName value is scoopTwo
 
 ----
 
