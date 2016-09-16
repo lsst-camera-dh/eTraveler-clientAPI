@@ -198,4 +198,15 @@ referencing CCDs or referencing hardware on the path to CCDs.  For queries
 where the hardware type is raft it ought to be sufficient to filter
 after the data have been sent.
 
+10. Command name:  getRunInfo
 
+Input parameters (name and use):
+--------------------------------
+name            Activity.id
+
+Returns (name and meaning)
+--------------------------
+rootActivityId  Activity.id for root activity if successful, else '0' or null
+runId           RunNumber.runId where RunNumber.rootActivityId = rootActivityId
+                if successful, else '0' or null
+acknowledge     Null if successful, else error string

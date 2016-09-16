@@ -51,6 +51,7 @@ class Connection:
                                  'activityId', 'operator'],
         'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
                                   'noBatched', 'operator'],
+        'getRunInfo' : ['activityId', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -76,6 +77,7 @@ class Connection:
                                  'reason' : 'Adjusted via API', 
                                  'activityId' : None},
         'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
+        'getRunInfo' : {'operator' : None},
         }
         
         
@@ -469,6 +471,18 @@ class Connection:
         #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'getHardwareHierarchy', **rqst)
         return self._decodeResponse(cmd, rsp)
+
+    def getRunInfo(self, **kwds):
+        '''
+        Keyword Arguements:
+            activityId id of activity for which root activity id is requested
+        Returns:  Dict if successful with keys 'rootActivityId' & 'runId'  
+           Else raise Exception
+        '''
+        cmd = 'getRunInfo'
+        rsp = self.__make_query(cmd, cmd, **kwds)
+        return self._decodeResponse(cmd, rsp)
+            
     
     def __check_slotnames(self, **kwds):
         '''
@@ -549,6 +563,9 @@ class Connection:
                     return 'Success'
                 elif (command == 'getHardwareHierarchy'):
                     return rsp['hierarchy']
+                elif (command == 'getRunInfo'):
+                    return {'rootActivityId' : rsp['rootActivityId'],
+                            'runId' : rsp['runId']}
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '
