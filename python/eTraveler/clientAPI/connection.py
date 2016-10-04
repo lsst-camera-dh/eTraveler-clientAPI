@@ -476,7 +476,7 @@ class Connection:
         '''
         Keyword Arguements:
             activityId id of activity for which root activity id is requested
-        Returns:  Dict if successful with keys 'rootActivityId' & 'runId'  
+        Returns:  Dict if successful with keys 'rootActivityId' & 'runNumber'  
            Else raise Exception
         '''
         cmd = 'getRunInfo'
@@ -565,7 +565,7 @@ class Connection:
                     return rsp['hierarchy']
                 elif (command == 'getRunInfo'):
                     return {'rootActivityId' : rsp['rootActivityId'],
-                            'runId' : rsp['runId']}
+                            'runNumber' : rsp['runNumber']}
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '

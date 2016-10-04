@@ -207,6 +207,6 @@ name            Activity.id
 Returns (name and meaning)
 --------------------------
 rootActivityId  Activity.id for root activity if successful, else '0' or null
-runId           RunNumber.runId where RunNumber.rootActivityId = rootActivityId
-                if successful, else '0' or null
+runNumber       RunNumber.runNumber where RunNumber.rootActivityId = 
+                rootActivityId if successful, else '0' or null
 acknowledge     Null if successful, else error string
