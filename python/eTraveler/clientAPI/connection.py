@@ -51,7 +51,13 @@ class Connection:
                                  'activityId', 'operator'],
         'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
                                   'noBatched', 'operator'],
+        'getContainingHardware' : ['experimentSN', 'hardwareTypeName',
+                                   'operator'],
         'getRunInfo' : ['activityId', 'operator'],
+        'getHardwareManufacturerId' : ['experimentSN', 'hardwareTypeName',
+                                       'operator'],
+        'setHardwareManufacturerId' : ['experimentSN', 'hardwareTypeName',
+                                       'manufacturerId', 'reason', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -77,6 +83,10 @@ class Connection:
                                  'reason' : 'Adjusted via API', 
                                  'activityId' : None},
         'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
+        'getContainingHardware' : {'operator' : None},
+        'getHardwareManufacturerId' : {'operator' : None},
+        'setHardwareManufacturerId' : {'reason' : 'Set via API',
+                                       'operator' : None},
         'getRunInfo' : {'operator' : None},
         }
         
@@ -444,6 +454,44 @@ class Connection:
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
 
+    def setHardwareManufacturerId(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN   identifier for component whose status will be set
+           htype          hardware type of component
+           manufacturerId new value
+           reason         defaults to 'Set by API'
+        Returns: String "Success" if operation succeeded, else error msg
+        Operation will fail unless old value of manufacturer id in db
+        was empty string
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'setHardwareManufacturerId'
+        rqst = self._reviseCall(cmd, k)
+        ##print 'rqst is \n'
+        ##print rqst
+        rsp = self.__make_query(cmd, 'setHardwareManufacturerId', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
+    def getHardwareManufacturerId(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN   identifier for component whose status will be set
+           htype          hardware type of component
+        Returns: String value of manufacturer id if successful; else
+                 raises exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'getHardwareManufacturerId'
+        rqst = self._reviseCall(cmd, k)
+        #print 'getHardwareManufacturerId called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
+        rsp = self.__make_query(cmd, 'getHardwareManufacturerId', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
     def getHardwareHierarchy(self, **kwds):
         '''
         Keyword Arguments:
@@ -470,6 +518,31 @@ class Connection:
         #for r in rqst:
         #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'getHardwareHierarchy', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
+    def getContainingHardware(self, **kwds):
+        '''
+        Keyword Arguments:
+            experimentSN  identifier for component for which containing
+                          component information is to be returned
+            htype         hardware type of the component
+        Returns:
+            If successful, array of dicts, each containing the following
+            keys:
+            level, parent_experimentSN, parent_hardwareTypeName, 
+            child_experimentSN, child_hardwareTypeName, relationshipTypeName,
+            slotName as well as (redundant and typically not of interest
+            to clients) parent_id, child_id.
+            If unsuccessful, raises exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'getContainingHardware'
+        rqst = self._reviseCall(cmd, k)
+        #print 'getHardwareHierarchy called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
+        rsp = self.__make_query(cmd, 'getContainingHardware', **rqst)
         return self._decodeResponse(cmd, rsp)
 
     def getRunInfo(self, **kwds):
@@ -543,7 +616,9 @@ class Connection:
                 del k['status']
             else:
                 raise ValueError, 'Missing label or status argument'
-        elif cmd == 'setHardwareLocation' or cmd == 'getHardwareHierarchy':
+        elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
+                     'getContainingHardware', 'getManufacturerId',
+                     'setManufacturerId']:
             k['hardwareTypeName'] = k['htype']
             del k['htype']
         else:
@@ -559,10 +634,14 @@ class Connection:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
                 elif (command in ['uploadYaml', 'setHardwareStatus',
-                                  'setHardwareLocation']):
+                                  'setHardwareLocation', 
+                                  'setHardwareManufacturerId']):
                     return 'Success'
-                elif (command == 'getHardwareHierarchy'):
+                elif (command in ['getHardwareHierarchy', 
+                                  'getContainingHardware']):
                     return rsp['hierarchy']
+                elif (command == 'getHardwareManufacturerId'):
+                    return rsp['manufacturerId']
                 elif (command == 'getRunInfo'):
                     return {'rootActivityId' : rsp['rootActivityId'],
                             'runNumber' : rsp['runNumber']}
