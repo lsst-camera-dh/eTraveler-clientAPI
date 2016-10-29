@@ -54,10 +54,10 @@ class Connection:
         'getContainingHardware' : ['experimentSN', 'hardwareTypeName',
                                    'operator'],
         'getRunInfo' : ['activityId', 'operator'],
-        'getHardwareManufacturerId' : ['experimentSN', 'hardwareTypeName',
-                                       'operator'],
-        'setHardwareManufacturerId' : ['experimentSN', 'hardwareTypeName',
-                                       'manufacturerId', 'reason', 'operator'],
+        'getManufacturerId' : ['experimentSN', 'hardwareTypeName',
+                               'operator'],
+        'setManufacturerId' : ['experimentSN', 'hardwareTypeName',
+                               'manufacturerId', 'reason', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -84,9 +84,8 @@ class Connection:
                                  'activityId' : None},
         'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
         'getContainingHardware' : {'operator' : None},
-        'getHardwareManufacturerId' : {'operator' : None},
-        'setHardwareManufacturerId' : {'reason' : 'Set via API',
-                                       'operator' : None},
+        'getManufacturerId' : {'operator' : None},
+        'setManufacturerId' : {'reason' : 'Set via API', 'operator' : None},
         'getRunInfo' : {'operator' : None},
         }
         
@@ -454,7 +453,7 @@ class Connection:
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
 
-    def setHardwareManufacturerId(self, **kwds):
+    def setManufacturerId(self, **kwds):
         '''
         Keyword Arguments:
            experimentSN   identifier for component whose status will be set
@@ -467,14 +466,14 @@ class Connection:
         '''
         k = dict(kwds)
         rqst = {}
-        cmd = 'setHardwareManufacturerId'
+        cmd = 'setManufacturerId'
         rqst = self._reviseCall(cmd, k)
         ##print 'rqst is \n'
         ##print rqst
-        rsp = self.__make_query(cmd, 'setHardwareManufacturerId', **rqst)
+        rsp = self.__make_query(cmd, 'setManufacturerId', **rqst)
         return self._decodeResponse(cmd, rsp)
 
-    def getHardwareManufacturerId(self, **kwds):
+    def getManufacturerId(self, **kwds):
         '''
         Keyword Arguments:
            experimentSN   identifier for component whose status will be set
@@ -484,12 +483,12 @@ class Connection:
         '''
         k = dict(kwds)
         rqst = {}
-        cmd = 'getHardwareManufacturerId'
+        cmd = 'getManufacturerId'
         rqst = self._reviseCall(cmd, k)
-        #print 'getHardwareManufacturerId called.  rqst parameters will be\n'
+        #print 'getManufacturerId called.  rqst parameters will be\n'
         #for r in rqst:
         #    print 'key %s, value %s'%(r, rqst[r])
-        rsp = self.__make_query(cmd, 'getHardwareManufacturerId', **rqst)
+        rsp = self.__make_query(cmd, 'getManufacturerId', **rqst)
         return self._decodeResponse(cmd, rsp)
 
     def getHardwareHierarchy(self, **kwds):
@@ -635,12 +634,12 @@ class Connection:
                 if (command == 'runAutomatable'): return rsp['command']
                 elif (command in ['uploadYaml', 'setHardwareStatus',
                                   'setHardwareLocation', 
-                                  'setHardwareManufacturerId']):
+                                  'setManufacturerId']):
                     return 'Success'
                 elif (command in ['getHardwareHierarchy', 
                                   'getContainingHardware']):
                     return rsp['hierarchy']
-                elif (command == 'getHardwareManufacturerId'):
+                elif (command == 'getManufacturerId'):
                     return rsp['manufacturerId']
                 elif (command == 'getRunInfo'):
                     return {'rootActivityId' : rsp['rootActivityId'],
