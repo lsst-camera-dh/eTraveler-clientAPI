@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+
+myConn = Connection('jrb', 'Test', prodServer=False)
+#myConn = Connection('jrb', 'Raw', prodServer=True)
+rsp = []
+try:
+    rsp = myConn.getContainingHardware(experimentSN='iceCream_001',
+                                       htype='iceCream')
+    print "Results from getContainingHardware"
+    iDict = 0
+    for d in rsp:
+        print('Examining array element %d' % (iDict))
+        for k in d:
+            print('For key {0} value is {1}'.format(k, d[k]))
+        iDict +=1
+
+    sys.exit(0)
+except Exception,msg:
+    print 'Operation failed with exception: '
+    print  msg
+    sys.exit(1)
+
