@@ -176,7 +176,8 @@ level n and child in that row is identical to parent in the current row.
 
 The level 0 rows are filled by finding all MultiRelationshipSlot rows with
 hardwareId corresponding to instance with supplied Hardware.lsstId and
-HardwareType.name.
+HardwareType.name.  If the specified component has no child components,
+the hierarchy array returned will be empty.
 
 Rows of level n+1 are obtained by repeating the procedure but with
 MultiRelationshipSlot.hardwareId corresponding to child_id
@@ -198,4 +199,86 @@ referencing CCDs or referencing hardware on the path to CCDs.  For queries
 where the hardware type is raft it ought to be sufficient to filter
 after the data have been sent.
 
+10. Command name:  getRunInfo
 
+Input parameters (name and use):
+--------------------------------
+name            Activity.id
+
+Returns (name and meaning)
+--------------------------
+rootActivityId  Activity.id for root activity if successful, else '0' or null
+runNumber       RunNumber.runNumber where RunNumber.rootActivityId = 
+                rootActivityId if successful, else '0' or null
+acknowledge     Null if successful, else error string
+
+11. Command name: getContainingHardware
+
+Input parameters (name and use):
+------------------------------
+experimentSN       Hardware.lsstId
+hardwareTypeName   HardwareType.name
+
+Returns (name and meaning)
+acknowledge        Null if successful, else error string
+hierarchy          An array of dicts, each with key-value pairs as described:
+
+key                              value
+-------------------              -----------------------
+level                            non-negative integer
+child_experimentSN               Hardware.lsstId
+child_hardwareTypeName           HardwareType.name
+child_id                         Hardware.id
+parent_experimentSN              Hardware.lsstId
+parent_hardwareTypeName          HardwareType.name
+parent_id                        Hardware.id
+relationshipTypeName             MultiRelationshipType.name
+slotName                         MultiRelationshipSlotType.name
+
+Value of "level" is 0 if child_experimentSN, child_hardwareTypeName
+match the arguments, and otherwise equal to n+1 if there is a row with
+level n and parent in that row is identical to child in the row under
+consideration.
+
+The level 0 row is filled by finding the MultiRelationship and slot
+which has the specified hardware component as child for that slot.
+If there is no parent component, the hierarchy array will have no elements.
+
+The row of level n+1 (if any) is obtained by repeating the procedure but with
+MultiRelationshipSlot.hardwareId corresponding to child_id
+for the row of level n.   
+
+The columns parent_experimentSN, parent_hardwareTypeName, child_experimentSN,
+child_hardwareTypeName are included for the convenience of the client. They
+could be derived form parent_id and child_id.
+
+The information will be presented to the client as an array of maps, so
+that the appropriate column name is explicitly associated with each value.
+
+12. setHardwareManufacturerId
+
+Input parameters (name and use):
+------------------------------
+experimentSN       Hardware.lsstId
+hardwareTypeName   HardwareType.name
+reason             discarded for now
+manufacturerId     Hardware.manufacturerId
+
+Set the manufacturerId field for specified component.  Only succeeds if the
+value of Hardware.manufacturerId had been the empty string.
+
+Returns (name and meaning)
+--------------------------
+acknowledge        Null if successful, else error string
+
+13. getHardwareManufacturerId
+
+Input parameters (name and use):
+------------------------------
+experimentSN       Hardware.lsstId
+hardwareTypeName   HardwareType.name
+
+Returns (name and meaning)
+--------------------------
+acknowledge        Null if successful, else error string
+manufacturerId     Hardware.manufacturerId if successful, else null

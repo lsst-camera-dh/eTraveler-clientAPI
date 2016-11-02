@@ -51,6 +51,13 @@ class Connection:
                                  'activityId', 'operator'],
         'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
                                   'noBatched', 'operator'],
+        'getContainingHardware' : ['experimentSN', 'hardwareTypeName',
+                                   'operator'],
+        'getRunInfo' : ['activityId', 'operator'],
+        'getManufacturerId' : ['experimentSN', 'hardwareTypeName',
+                               'operator'],
+        'setManufacturerId' : ['experimentSN', 'hardwareTypeName',
+                               'manufacturerId', 'reason', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -76,6 +83,10 @@ class Connection:
                                  'reason' : 'Adjusted via API', 
                                  'activityId' : None},
         'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
+        'getContainingHardware' : {'operator' : None},
+        'getManufacturerId' : {'operator' : None},
+        'setManufacturerId' : {'reason' : 'Set via API', 'operator' : None},
+        'getRunInfo' : {'operator' : None},
         }
         
         
@@ -442,6 +453,44 @@ class Connection:
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
 
+    def setManufacturerId(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN   identifier for component whose status will be set
+           htype          hardware type of component
+           manufacturerId new value
+           reason         defaults to 'Set by API'
+        Returns: String "Success" if operation succeeded, else error msg
+        Operation will fail unless old value of manufacturer id in db
+        was empty string
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'setManufacturerId'
+        rqst = self._reviseCall(cmd, k)
+        ##print 'rqst is \n'
+        ##print rqst
+        rsp = self.__make_query(cmd, 'setManufacturerId', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
+    def getManufacturerId(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN   identifier for component whose status will be set
+           htype          hardware type of component
+        Returns: String value of manufacturer id if successful; else
+                 raises exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'getManufacturerId'
+        rqst = self._reviseCall(cmd, k)
+        #print 'getManufacturerId called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
+        rsp = self.__make_query(cmd, 'getManufacturerId', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
     def getHardwareHierarchy(self, **kwds):
         '''
         Keyword Arguments:
@@ -469,6 +518,43 @@ class Connection:
         #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'getHardwareHierarchy', **rqst)
         return self._decodeResponse(cmd, rsp)
+
+    def getContainingHardware(self, **kwds):
+        '''
+        Keyword Arguments:
+            experimentSN  identifier for component for which containing
+                          component information is to be returned
+            htype         hardware type of the component
+        Returns:
+            If successful, array of dicts, each containing the following
+            keys:
+            level, parent_experimentSN, parent_hardwareTypeName, 
+            child_experimentSN, child_hardwareTypeName, relationshipTypeName,
+            slotName as well as (redundant and typically not of interest
+            to clients) parent_id, child_id.
+            If unsuccessful, raises exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'getContainingHardware'
+        rqst = self._reviseCall(cmd, k)
+        #print 'getHardwareHierarchy called.  rqst parameters will be\n'
+        #for r in rqst:
+        #    print 'key %s, value %s'%(r, rqst[r])
+        rsp = self.__make_query(cmd, 'getContainingHardware', **rqst)
+        return self._decodeResponse(cmd, rsp)
+
+    def getRunInfo(self, **kwds):
+        '''
+        Keyword Arguements:
+            activityId id of activity for which root activity id is requested
+        Returns:  Dict if successful with keys 'rootActivityId' & 'runNumber'  
+           Else raise Exception
+        '''
+        cmd = 'getRunInfo'
+        rsp = self.__make_query(cmd, cmd, **kwds)
+        return self._decodeResponse(cmd, rsp)
+            
     
     def __check_slotnames(self, **kwds):
         '''
@@ -529,7 +615,9 @@ class Connection:
                 del k['status']
             else:
                 raise ValueError, 'Missing label or status argument'
-        elif cmd == 'setHardwareLocation' or cmd == 'getHardwareHierarchy':
+        elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
+                     'getContainingHardware', 'getManufacturerId',
+                     'setManufacturerId']:
             k['hardwareTypeName'] = k['htype']
             del k['htype']
         else:
@@ -545,10 +633,17 @@ class Connection:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
                 elif (command in ['uploadYaml', 'setHardwareStatus',
-                                  'setHardwareLocation']):
+                                  'setHardwareLocation', 
+                                  'setManufacturerId']):
                     return 'Success'
-                elif (command == 'getHardwareHierarchy'):
+                elif (command in ['getHardwareHierarchy', 
+                                  'getContainingHardware']):
                     return rsp['hierarchy']
+                elif (command == 'getManufacturerId'):
+                    return rsp['manufacturerId']
+                elif (command == 'getRunInfo'):
+                    return {'rootActivityId' : rsp['rootActivityId'],
+                            'runNumber' : rsp['runNumber']}
                 else: return rsp['id']
             else:
                 #print 'str rsp of acknowledge: '
