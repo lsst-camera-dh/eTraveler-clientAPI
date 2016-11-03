@@ -264,14 +264,15 @@ hardwareTypeName   HardwareType.name
 reason             discarded for now
 manufacturerId     Hardware.manufacturerId
 
-Set the manufacturerId field for specified component.  Only succeeds if the
-value of Hardware.manufacturerId had been the empty string.
+Set the manufacturerId field for specified component.  Only 
+succeeds if the value of Hardware.manufacturerId had been the 
+empty string or all blank characters.
 
 Returns (name and meaning)
 --------------------------
 acknowledge        Null if successful, else error string
 
-13. getHardwareManufacturerId
+13. getManufacturerId
 
 Input parameters (name and use):
 ------------------------------
