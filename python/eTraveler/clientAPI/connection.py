@@ -640,7 +640,8 @@ class Connection:
                                   'getContainingHardware']):
                     return rsp['hierarchy']
                 elif (command == 'getManufacturerId'):
-                    return rsp['manufacturerId']
+                    if rsp['manufacturerId'] is None: return ""
+                    else: return rsp['manufacturerId']
                 elif (command == 'getRunInfo'):
                     return {'rootActivityId' : rsp['rootActivityId'],
                             'runNumber' : rsp['runNumber']}
