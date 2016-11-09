@@ -156,12 +156,6 @@ class Connection:
 
         posturl = self.baseurl + command
 
-        #if command == 'setHardwareLocation':
-        #    print 'Original query string: '
-        #    print str(query)
-        #    print 'json version: '
-        #    print str(jdata)
-        #    print 'Posting to ' + str(posturl)
         if self.debug:
             if 'slotNames' in kwds:
                 print 'Value of slotNames: '
@@ -179,10 +173,10 @@ class Connection:
             r = requests.post(posturl, data = {"jsonObject" : jdata})
         except requests.HTTPError, msg:
             print "HTTPError: ", str(msg)
-            sys.exit()
+            raise
         except requests.RequestException, msg:
             print "Some other exception: ", str(msg)
-            sys.exit()
+            raise
 
         if self.debug:
             print 'No exceptions! '
@@ -341,6 +335,7 @@ class Connection:
             minorTypeId - id of subsidiary type
             numItems - defaults to 1
             slotNames - single string or list of strings
+        Returns: If success, id of new relationship type. Else raise exception
         '''
         revisedKwds = self.__check_slotnames(**kwds)
         rsp = self.__make_query('defineRelationshipType', 
@@ -358,13 +353,13 @@ class Connection:
             filepath - file containing YAML
                    OR
             contents - YAML to be ingested as a string
-        Return: String 'Success' if operation succeeded, else error msg
+        Return: String 'Success' if operation succeeded, else raise exception
         '''
         k = dict(kwds)
         rqst = dict({})
         cmd = 'uploadYaml'
         rqst = self._reviseContents(k)
-        #print rqst['contents']
+
         rsp = self.__make_query(cmd, 'validateYaml', **rqst)
         return self._decodeResponse(cmd, rsp)
 
@@ -382,7 +377,7 @@ class Connection:
             reason - non-empty string describing purpose of traveler 
                      and/or reason for new version
                     
-        Return: String 'Success' if operation succeeded, else error msg
+        Return: String 'Success' if operation succeeded, else raise exception
         '''
         k = dict(kwds)
         rqst = {}
@@ -402,14 +397,12 @@ class Connection:
            status        new status to be set (e.g. READY, REJECTED, etc.)
            reason        defaults to 'Set by API'
            activityId    defaults to None
-        Returns: String "Success" if operation succeeded, else error msg
+        Returns: String "Success" if operation succeeded, else raise exception
         '''
         k = dict(kwds)
         rqst = {}
         cmd = 'setHardwareStatus'
         rqst = self._reviseCall(cmd, k)
-        ##print 'rqst is \n'
-        ##print rqst
         rsp = self.__make_query(cmd, 'setHardwareStatus', **rqst)
         return self._decodeResponse(cmd, rsp)
 
@@ -422,7 +415,7 @@ class Connection:
            adding        'true' to add, 'false' for remove.  Default 'true'
            reason        defaults to 'Set by API'
            activityId    defaults to None
-        Returns: String 'Success' if operation succeeded, else error msg
+        Returns: String 'Success' if operation succeeded, else raise exception
         '''
         k = dict(kwds)
         rqst = {}
@@ -447,9 +440,6 @@ class Connection:
         rqst = {}
         cmd = 'setHardwareLocation'
         rqst = self._reviseCall(cmd, k)
-        #print 'setHardwareLocation called.  rqst parameters will be\n'
-        #for r in rqst:
-        #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'setHardwareLocation', **rqst)
         return self._decodeResponse(cmd, rsp)
 
@@ -461,15 +451,13 @@ class Connection:
            manufacturerId new value
            reason         defaults to 'Set by API'
         Returns: String "Success" if operation succeeded, else error msg
-        Operation will fail unless old value of manufacturer id in db
-        was empty string
+        Operation will fail (raise ValueError exception) if old value 
+        of manufacturer id in db wasn't empty string or blanks.
         '''
         k = dict(kwds)
         rqst = {}
         cmd = 'setManufacturerId'
         rqst = self._reviseCall(cmd, k)
-        ##print 'rqst is \n'
-        ##print rqst
         rsp = self.__make_query(cmd, 'setManufacturerId', **rqst)
         return self._decodeResponse(cmd, rsp)
 
@@ -485,9 +473,6 @@ class Connection:
         rqst = {}
         cmd = 'getManufacturerId'
         rqst = self._reviseCall(cmd, k)
-        #print 'getManufacturerId called.  rqst parameters will be\n'
-        #for r in rqst:
-        #    print 'key %s, value %s'%(r, rqst[r])
         rsp = self.__make_query(cmd, 'getManufacturerId', **rqst)
         return self._decodeResponse(cmd, rsp)
 
@@ -603,8 +588,8 @@ class Connection:
         return k
 
     def _reviseCall(self, cmd, k):
-        
         if cmd == 'setHardwareStatus':
+            if 'htype' not in k: raise ValueError, 'Missing htype parameter'
             k['hardwareTypeName'] = k['htype']
             del k['htype']
             if 'label' in k:
@@ -618,10 +603,11 @@ class Connection:
         elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
                      'getContainingHardware', 'getManufacturerId',
                      'setManufacturerId']:
+            if 'htype' not in k: raise ValueError, 'Missing htype parameter'
             k['hardwareTypeName'] = k['htype']
             del k['htype']
         else:
-            raise ValueError, 'Dont know how to revise command ' + cmd
+            raise ValueError, 'Flawed arguments. Dont know how to revise command ' + cmd
         return k
             
     def _decodeResponse(self, command, rsp):
@@ -647,8 +633,8 @@ class Connection:
                             'runNumber' : rsp['runNumber']}
                 else: return rsp['id']
             else:
-                #print 'str rsp of acknowledge: '
-                #print  str(rsp['acknowledge'])
+                if ((command == 'setManufacturerId') and ('already set' in rsp['acknowledge'] ) ):
+                    raise ValueError, rsp['acknowledge']
                 raise Exception, rsp['acknowledge']
         else:
             print 'return value of unexpected type', type(rsp)

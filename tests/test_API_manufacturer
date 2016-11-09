@@ -3,7 +3,7 @@ import sys
 
 from  eTraveler.clientAPI.connection import Connection
       
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=True)
 try: 
     boojumId = myConn.getManufacturerId(experimentSN='boojum-03', 
                                         htype='boojum')
@@ -20,6 +20,8 @@ try:
                                    htype='boojum',
                                    manufacturerId='already-set-01')
     sys.exit(0)
+except ValueError,msg:
+    print 'Operation failed with ValueError: ', msg
 except Exception,msg:
     print 'Operation failed with exception: '
     print  msg
