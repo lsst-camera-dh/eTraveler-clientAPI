@@ -1,0 +1,57 @@
+Invoked with connection to Dev db, arguments
+run='4689D', stepName='read_noise_raft', itemFilter=('amp', 3)
+
+--------------------------------------
+
+Value for key  run  is  4689
+Value for key  experimentSN  is  LCA-11021_RTM-004_ETU2-Dev
+Value for key  hid  is  1011
+For stepName read_noise_raft 
+
+
+
+Got data for schema read_noise_raft
+Instance 0: 
+system_noise : float
+slot : string
+sensor_id : string
+read_noise : float
+total_noise : float
+schemaInstance : 0
+amp : int
+
+Instance 1: 
+system_noise : 0.0
+slot : S00
+sensor_id : ITL-3800C-145-Dev
+read_noise : 14.3149452209
+activityId : 26784
+total_noise : 14.3149452209
+schemaInstance : 3
+amp : 3
+
+
+Got data for schema job_info
+Instance 0: 
+job_name : string
+schemaInstance : 0
+job_id : string
+
+Instance 1: 
+activityId : 26784
+job_name : read_noise_raft
+schemaInstance : 1
+job_id : 26784
+
+
+Got data for schema package_versions
+Instance 0: 
+version : string
+schemaInstance : 0
+package : string
+
+Instance 1: 
+activityId : 26784
+version : 0.4.34
+schemaInstance : 1
+package : harnessed-jobs

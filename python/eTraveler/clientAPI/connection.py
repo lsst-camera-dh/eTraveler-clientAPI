@@ -8,21 +8,34 @@ import requests
 import sys
 import os
 import string
+import datetime
+from dateutil.parser import parse as parsetime
+
 #  Might want to specify path or a use a different name for commands module
 #  to avoid possibility of getting the wrong one
 import eTraveler.clientAPI.commands
 
 def to_terminal(out):
-    print out
+    print outd
+
+class ETClientAPIException(RuntimeError):
+    pass
+class ETClientAPIValueError(ETClientAPIException):
+    pass
+class ETClientAPINoDataException(ETClientAPIException):
+    pass
 
 class Connection:
-    prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler/'
-    devServerUrl='http://lsst-camera-dev.slac.stanford.edu/eTraveler/'
+    prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler'
+    devServerUrl='http://lsst-camera-dev.slac.stanford.edu/eTraveler'
+    localServerUrl='http://localhost:8084/eTraveler'
 
+    
     API = {
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
                               'manufacturerId', 'model', 'manufactureDate',
-                              'manufacturer', 'operator', 'quantity'],
+                              'manufacturer', 'operator', 'quantity',
+                              'remarks'],
         'defineHardwareType' : ['name', 'description', 'subsystem',
                                 'sequenceWidth', 'batchedFlag', 'operator'],
         'runHarnessedById' : ['hardwareId', 'travelerName',
@@ -50,14 +63,25 @@ class Connection:
                                  'locationName', 'siteName', 'reason',
                                  'activityId', 'operator'],
         'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
-                                  'noBatched', 'operator'],
+                                  'noBatched', 'timestamp', 'operator'],
         'getContainingHardware' : ['experimentSN', 'hardwareTypeName',
-                                   'operator'],
+                                   'timestamp', 'operator'],
         'getRunInfo' : ['activityId', 'operator'],
         'getManufacturerId' : ['experimentSN', 'hardwareTypeName',
                                'operator'],
         'setManufacturerId' : ['experimentSN', 'hardwareTypeName',
                                'manufacturerId', 'reason', 'operator'],
+        'getRunResults' : ['function', 'run', 'stepName', 'schemaName',
+                           'filterKey', 'filterValue', 'operator'],
+        'getRunFilepaths' : ['function', 'run', 'stepName', 'operator'],
+        'getResultsJH'  : ['function', 'travelerName', 'hardwareType',
+                           'stepName', 'schemaName', 'model', 'experimentSN',
+                           'filterKey', 'filterValue', 'operator'],
+        'getFilepathsJH'  : ['function', 'travelerName', 'hardwareType',
+                             'stepName', 'model', 'experimentSN',
+                             'operator'],
+        'getActivity'     : ['function', 'activityId', 'operator'],
+        'getRunActivities' : ['function', 'run', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -67,6 +91,7 @@ class Connection:
         'registerHardware' : {'experimentSN' : '', 'manufacturerId' : '', 
                               'model' : '',
                               'manufactureDate' : '', 'manufacturer' : '',
+                              'remarks' : '',
                               'operator' : None, 'quantity' : 1},
         'defineRelationshipType' : {'operator' : None, 'numItems' : 1,
                                     'description' : None},
@@ -82,22 +107,41 @@ class Connection:
         'setHardwareLocation' : {'operator' : None, 'siteName' : None,
                                  'reason' : 'Adjusted via API', 
                                  'activityId' : None},
-        'getHardwareHierarchy' : {'operator' : None, 'noBatched' : 'true'},
-        'getContainingHardware' : {'operator' : None},
+        'getHardwareHierarchy' : {'operator' : None, 'timestamp': None,
+                                  'noBatched' : 'true'},
+        'getContainingHardware' : {'timestamp' : None, 'operator' : None},
         'getManufacturerId' : {'operator' : None},
         'setManufacturerId' : {'reason' : 'Set via API', 'operator' : None},
         'getRunInfo' : {'operator' : None},
+        'getRunResults' : {'function' : 'getRunResults', 'stepName' : None,
+                           'schemaName' : None, 'filterKey' : None,
+                           'filterValue' : None, 'operator' : None},
+        'getRunFilepaths' : {'function' : 'getRunFilepaths', 'stepName' : None,
+                             'operator' : None},
+        'getResultsJH'  : {'function' : 'getResultsJH' , 
+                           'schemaName' : None, 'model' : None,
+                           'experimentSN' : None, 'filterKey' : None,
+                           'filterValue' : None, 'operator' : None},
+        'getFilepathsJH'  : {'function' : 'getFilepathsJH' , 
+                             'model' : None, 'experimentSN' : None,
+                             'operator' : None},
+        'getActivity' : {'function' : 'getActivity',
+                         'operator' : None},
+        'getRunActivities' : {'function' : 'getRunActivities',
+                              'operator' : None},
         }
         
         
-    def __init__(self, operator=None, db='Prod', prodServer=True, 
+    def __init__(self, operator=None, db='Prod', prodServer=True,
+                 localServer=False, appSuffix="",
                  exp='LSST-CAMERA', debug=False):
-        url = Connection.prodServerUrl
-        if not prodServer: url = Connection.devServerUrl
+        url = Connection.prodServerUrl + appSuffix
+        if not prodServer: url = Connection.devServerUrl + appSuffix
+        # localServer wins if set
+        if localServer: url = Connection.localServerUrl + appSuffix
         # For now can't talk to CDMS databases
         #url += ('/exp/' + exp + '/')
-        url += db 
-        url += '/Results/'
+        url += '/' + db + '/Results/'
         self.baseurl = url
         # if operator is None, prompt or use login?
         # do something for authorization
@@ -111,7 +155,7 @@ class Connection:
     def __make_params(self, func, **kwds):
         '''
         Take keyword arguments and return dictionary suitable for use
-        with func or raise ValueError.
+        with func or raise ETClientAPIValueError.
         '''
         if func not in Connection.API:
             raise KeyError, 'eTraveler API does not support function %s' % str(func)
@@ -128,10 +172,10 @@ class Connection:
         if missingCopy:
             msg = 'Not given enough info to satisfy eTraveler API for %s: missing: %s' % (func, str(sorted(missingCopy)))
             #log.error(msg)
-            raise ValueError, msg
+            raise ETClientAPIValueError, msg
         if cfg['operator'] == None:
             if self.operator == None:
-                raise ValueError, 'Missing parameter: must specify operator'
+                raise ETClientAPIValueError, 'Missing parameter: must specify operator'
             cfg['operator'] = self.operator
 
         for k in want:
@@ -143,7 +187,7 @@ class Connection:
     def __make_query(self, command, func, **kwds):
         '''
         Make a query string for the given command and with the given
-        keywords or raise ValueError.
+        keywords or raise ETClientAPIValueError.
 
         Arugments
         command - the command sent to eTraveler front-end. Required
@@ -182,12 +226,9 @@ class Connection:
             print 'No exceptions! '
             print "Status code: ", r.status_code
             print "Content type: ", r.headers['content-type']
-            print "Text: ", r.text
             print "this is type of what I got: ", type(r)
+            print "As text: ", r.text
 
-            print 'text input: \n'
-            print r.text
-            
         try:
             rsp = r.json()
 
@@ -199,7 +240,7 @@ class Connection:
             print "Content type: ", r.headers['content-type']
             print "Text: ", r.text
             print "this is type of what I got: ", type(r)
-            raise ValueError, msg
+            raise ETClientAPIValueError, msg
 
         
     def registerHardware(self, **kwds):
@@ -237,7 +278,7 @@ class Connection:
         '''
         k = dict(kwds)
         if 'name' not in k:
-            raise ValueError, 'missing name parameter'
+            raise ETClientAPIValueError, 'missing name parameter'
 
         # validate input
         badchars = ' $()/\\&<?'
@@ -245,9 +286,9 @@ class Connection:
         for c in badchars:
             if c in nm:
                 if c == ' ':
-                    raise ValueError, 'No blanks allowed in hardware type name'
+                    raise ETClientAPIValueError, 'No blanks allowed in hardware type name'
                 else:
-                    raise ValueError, 'name contains disallowed character %s' %c
+                    raise ETClientAPIValueError, 'name contains disallowed character %s' %c
         rsp = self.__make_query('defineHardwareType', 'defineHardwareType',
                                 **kwds)
 
@@ -451,7 +492,7 @@ class Connection:
            manufacturerId new value
            reason         defaults to 'Set by API'
         Returns: String "Success" if operation succeeded, else error msg
-        Operation will fail (raise ValueError exception) if old value 
+        Operation will fail (raise ETClientAPIValueError exception) if old value 
         of manufacturer id in db wasn't empty string or blanks.
         '''
         k = dict(kwds)
@@ -534,12 +575,94 @@ class Connection:
         Keyword Arguements:
             activityId id of activity for which root activity id is requested
         Returns:  Dict if successful with keys 'rootActivityId' & 'runNumber'  
-           Else raise Exception
+           Else raise ETClientAPIException
         '''
         cmd = 'getRunInfo'
         rsp = self.__make_query(cmd, cmd, **kwds)
         return self._decodeResponse(cmd, rsp)
-            
+
+    # The following are all subcommands of getResults.  Don't attempt
+    # to do too much argument checking. Front end will handle it.
+    def getRunResults(self, **kwds):
+        '''
+        Keyword Arguments:
+           run - the only required argument
+           stepName
+           schemaName
+           itemFilter (pair: key name and value)
+        Return if successful:
+           a dict.  Keys 'run', 'experimentSN' and 'hid' have scalar values
+           Key 'steps'  has a dict as value.  
+              Keys for the steps dict are step names
+              Value for each key is a dict (call it the schemas dict)
+                  Keys for the schemas dict are schema names
+                  Value for each key is a list of schema instances
+                     Each schema instance is a dict
+                     Instance 0 is special: values of keys are type names
+
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getRunResults', k)
+        rsp = self.__make_query('getResults', 'getRunResults', **rqst)
+        return self._decodeResponse('getResults', rsp)
+
+    def getResultsJH(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype - hardware type name, required
+           travelerName -  required
+           stepName - process step name, required
+           schemaName - optional
+           model - cut on hardware model; optional
+           experimentSN - only fetch for this component; optional
+           itemFilter (pair: key name and value)
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getResultsJH', k)
+        rsp = self.__make_query('getResults', 'getResultsJH', **rqst);
+
+        return self._decodeResponse('getResults', rsp)
+
+    def getRunFilepaths(self, **kwds):
+        '''
+        Keyword Arguments:
+           run - the only required argument
+           stepname
+        '''
+        rsp = self.__make_query('getResults', 'getRunFilepaths', **kwds)
+        return self._decodeResponse('getResults', rsp)
+
+    def getFilepathsJH(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype - hardware type name, required
+           travelerName -  required
+           stepName - process step name, required
+           model - cut on hardware model; optional
+           experimentSN - only fetch for this component; optional
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getFilepathsJH', k)
+        rsp = self.__make_query('getResults', 'getFilepathsJH', **rqst);
+
+        return self._decodeResponse('getResults', rsp)
+    
+    def getActivity(self, **kwds):
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getActivity', k)
+        rsp = self.__make_query('getResults', 'getActivity', **rqst)
+        return self._decodeResponse('getResults', rsp)
+
+    def getRunActivities(self, **kwds):
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getRunActivities', k)
+        rsp = self.__make_query('getResults', 'getRunActivities', **rqst)
+        return self._decodeResponse('getResults', rsp)
     
     def __check_slotnames(self, **kwds):
         '''
@@ -553,22 +676,22 @@ class Connection:
         if 'numItems' in k:
             num = int(k['numItems'])
         if 'slotNames' not in k:
-            raise ValueError, 'Missing slotName argument'
+            raise ETClientAPIValueError, 'Missing slotName argument'
 
         slist = k['slotNames']
 
         if isinstance(slist, str): slist = [slist]
 
         if not isinstance(slist, list):
-            raise ValueError, 'Improper slotName list'
+            raise ETClientAPIValueError, 'Improper slotName list'
         for e in slist: 
             if not isinstance(e, str):
-                raise ValueError, 'Slot names must be strings'
+                raise ETClientAPIValueError, 'Slot names must be strings'
             if ',' in e:
-                raise ValueError, 'Slot names may not contain commas'
+                raise ETClientAPIValueError, 'Slot names may not contain commas'
 
         if (len(slist) != 1) and (len(slist) != num):
-            raise ValueError, 'Wrong number of slotnames'
+            raise ETClientAPIValueError, 'Wrong number of slotnames'
 
         kwds['slotNames'] = string.join(slist, ',')
         return kwds
@@ -584,12 +707,12 @@ class Connection:
                     cnt += line
                 k['contents'] = cnt
         else:
-            raise ValueError, 'No input yaml. Use contents or filepath keyword'
+            raise ETClientAPIValueError, 'No input yaml. Use contents or filepath keyword'
         return k
 
     def _reviseCall(self, cmd, k):
         if cmd == 'setHardwareStatus':
-            if 'htype' not in k: raise ValueError, 'Missing htype parameter'
+            if 'htype' not in k: raise ETClientAPIValueError, 'Missing htype parameter'
             k['hardwareTypeName'] = k['htype']
             del k['htype']
             if 'label' in k:
@@ -599,17 +722,61 @@ class Connection:
                 k['hardwareStatusName'] = k['status']
                 del k['status']
             else:
-                raise ValueError, 'Missing label or status argument'
+                raise ETClientAPIValueError, 'Missing label or status argument'
         elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
                      'getContainingHardware', 'getManufacturerId',
                      'setManufacturerId']:
-            if 'htype' not in k: raise ValueError, 'Missing htype parameter'
+            if 'htype' not in k:
+                raise ETClientAPIValueError, 'Missing htype parameter'
             k['hardwareTypeName'] = k['htype']
             del k['htype']
-        else:
-            raise ValueError, 'Flawed arguments. Dont know how to revise command ' + cmd
+        elif cmd in ['getResultsJH', 'getFilepathsJH']:
+            if 'hardwareType' not in k:
+                if 'htype' not in k:
+                    raise ETClientAPIValueError, 'Missing hytpe parameter'
+                k['hardwareType'] = k['htype']
+                del k['htype']
+        if cmd in ['getRunResults', 'getResultsJH']:
+            if 'itemFilter' in k:
+                filt = k['itemFilter']
+                print 'itemFilter is ', filt
+                self._parseItemFilter(filt)
+                k['filterKey'] = filt[0]
+                k['filterValue'] = filt[1]
+                del k['itemFilter']
+        if cmd in ['getHardwareHierarchy', 'getContainingHardware']:
+            if 'timestamp' in k:
+                k['timestamp'] = self._makeIsoTime(k['timestamp'])
+        if cmd == 'getActivity':
+            if 'activityId' in k:
+                k['activityId'] = str(k['activityId'])
+            else:
+                raise ETClientAPIValueError, 'Missing activityId argument'
+        if cmd == 'getRunActivities':
+            if 'run' in k:
+                k['run'] = str(k['run'])
+            else:
+                raise ETClientAPIValueError, 'Missing run argument'
         return k
-            
+
+    def _parseItemFilter(self, itemFilter):
+        if not isinstance(itemFilter, tuple):
+            raise KeyError, 'itemFilter must be tuple'
+        if not len(itemFilter) == 2:
+            raise KeyError, 'itemFilter must be tuple of length 2'
+        if not isinstance(itemFilter[0], str): 
+            raise KeyError, 'itemFilter key must be a string'
+        if isinstance(itemFilter[1], str) or isinstance(itemFilter[1], int) or isinstance(itemFilter[1], long): return
+        raise KeyError, 'itemFilter value must be integer or string'
+
+    def _makeIsoTime(self, inputTime):
+        try:
+            isotime = parsetime(inputTime).isoformat()
+        except ValueError,msg:
+            raise ETClientAPIValueError("Bad time string. " + str(msg))
+
+        return isotime
+
     def _decodeResponse(self, command, rsp):
         '''
         Common error handling for response to query. If good response,
@@ -631,12 +798,17 @@ class Connection:
                 elif (command == 'getRunInfo'):
                     return {'rootActivityId' : rsp['rootActivityId'],
                             'runNumber' : rsp['runNumber']}
+                elif (command == 'getResults'):
+                    return rsp['results']
                 else: return rsp['id']
             else:
                 if ((command == 'setManufacturerId') and ('already set' in rsp['acknowledge'] ) ):
-                    raise ValueError, rsp['acknowledge']
-                raise Exception, rsp['acknowledge']
+                    raise ETClientAPIValueError, rsp['acknowledge']
+                elif 'No data found' in rsp['acknowledge']:
+                    raise ETClientAPINoDataException, rsp['acknowledge']
+                else:
+                    raise ETClientAPIException, rsp['acknowledge']
         else:
             print 'return value of unexpected type', type(rsp)
             print 'return value cast to string is: ', str(rsp)
-            raise Exception, str(rsp)
+            raise ETClientAPIException, str(rsp)

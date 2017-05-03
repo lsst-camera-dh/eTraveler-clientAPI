@@ -5,13 +5,14 @@ from  eTraveler.clientAPI.connection import Connection
 
 # Use htype='boojum', experimentSN='seven' for Test db
 #myConn = Connection('jrb', 'Test', prodServer=False)
-myConn = Connection('jrb', 'Raw', prodServer=True)
+myConn = Connection('jrb', 'Raw', prodServer=False, debug=True)
 rsp = []
 try:
     #rsp = myConn.getHardwareHierarchy(experimentSN='seven',
     #   	                              htype='boojum',
     rsp = myConn.getHardwareHierarchy(experimentSN='dessert_01',
     	                              htype='dessert',
+                                      timestamp='2017/3/4',
                                       noBatched='false')
     print "Results from getHardwareHierarchy unfiltered:"
     iDict = 0

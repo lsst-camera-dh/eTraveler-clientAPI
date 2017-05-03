@@ -30,6 +30,7 @@ manufacturerId  Hardware.manufactureId
 model           Hardware.model
 manufactureDate Hardware.manufactureDate         [of form YYYY-MM-DD]
 manufacturer    Hardware.manufacturer
+remarks         Hardware.remarks
 quantity        BatchedInventoryHistory.adjustment   [int]
 operator        Hardware.createdBy
 
@@ -283,3 +284,119 @@ Returns (name and meaning)
 --------------------------
 acknowledge        Null if successful, else error string
 manufacturerId     Hardware.manufacturerId if successful, else null
+
+14. getResults
+
+This is a whole family of commands.  They all share an input parameter
+'function' used to distinguish among the different subcommands.
+
+14a. getRunResults
+
+Input parameters
+-----------------
+function = 'getRunResults'    (fixed)
+runNumber     RunNumber.runNumber  or RunNumber.runInt cast as string
+stepName      Process.name   (optional)
+schemaName    *ResultHarnessed.schemaName   (optional)
+filterKey     *ResultHarnessed.name         (optional)
+filterValue   *ResultHarnessed.value        (optional)
+
+Must have either both or neither of filterKey, filterValue
+
+Returns
+--------
+acknowledge      Null if successful, else error string
+results          Many-layered data structure.  It's a map. All keys
+                 have scalar values except for the key 'steps'.
+                 Value of 'steps' is a map where keys are
+		 process step names. Value for such a key is a map
+                 whose keys are schema names for the schemas used in
+                 that step.   Value for a particular schema name is
+                 an arraylist of schema instance data.  Each element
+                 in the array is itself a map.
+
+14b. getResultsJH
+
+Input parameters
+-----------------
+function = 'getResultsJH'   (fixed)
+travelerName  Process.name                  (required)
+hardwareType  HardwareType.name             (required)
+stepName      Process.name                  (required)
+schemaName    *ResultHarnessed.schemaName   (optional)
+model         Hardware.model                (optional)
+experimentSN  Hardware.lsstId               (optional)
+filterKey     *ResultHarnessed.name         (optional)
+filterValue   *ResultHarnessed.value        (optional)
+
+Returns
+--------
+acknowledge      Null if successful, else error string
+results          Many-layered data structure. It's similar to output
+                 for getRunResults but has one more level.  The topmost
+                 map has keys which designate a component by experimentSN.
+                 Then for each such component, value is structured
+                 like getRunResults output.
+
+14c. getRunFilepaths
+
+Input parameters
+-----------------
+function = 'getRunFilepaths'    (fixed)
+runNumber     RunNumber.runNumber  or RunNumber.runInt cast as string
+stepName      Process.name   (optional)
+
+Returns
+--------
+acknowledge      Null if successful, else error string
+results          Many-layered data structure. It's similar to output
+                 for getRunResults but simpler since there is no need
+                 for a map of schema names (All data comes from the
+                 fileref schema).
+
+14.d getFilepathsJH
+
+Input parameters
+----------------
+function = 'getFilepathsJH'   (fixed)
+travelerName  Process.name                  (required)
+hardwareType  HardwareType.name             (required)
+stepName      Process.name                  (required)
+model         Hardware.model                (optional)
+experimentSN  Hardware.lsstId               (optional)
+
+Returns
+--------
+acknowledge      Null if successful, else error string
+results          Many-layered data structure. It's similar to output
+                 for getResultsJH but simpler since there is no need
+                 for a map of schema names (All data comes from the
+                 fileref schema).
+
+14.e getActivity
+
+Input parameters
+----------------
+function = 'getActivity' (fixed)
+activityId      Activity.id            (required)
+
+Returns
+--------
+acknowledge     Null if successful, else error string
+results         Map containing activity info: begin, run, step name,
+                final status and activity id
+
+14.f  getRunActivities
+
+Input parameters
+----------------
+function = 'getRunActivities' (fixed)
+run         RunNumber.runNumber (with or without final alpha character,required)
+
+Returns
+--------
+acknowledge     Null if successful, else error string
+results         List of maps, one for each activity in the run, ordered
+                by activity id. Info in each map is the same as for getActivity
+		
+
