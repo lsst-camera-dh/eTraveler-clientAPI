@@ -82,6 +82,7 @@ class Connection:
                              'operator'],
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
+        'getRunSummary' : ['function', 'run', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -129,6 +130,8 @@ class Connection:
                          'operator' : None},
         'getRunActivities' : {'function' : 'getRunActivities',
                               'operator' : None},
+        'getRunSummary' : {'function' : 'getRunSummary',
+                           'operator' : None},
         }
         
         
@@ -663,7 +666,14 @@ class Connection:
         rqst = self._reviseCall('getRunActivities', k)
         rsp = self.__make_query('getResults', 'getRunActivities', **rqst)
         return self._decodeResponse('getResults', rsp)
-    
+
+    def getRunSummary(self, **kwds):
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getRunSummary', k)
+        rsp = self.__make_query('getResults', 'getRunSummary', **rqst)
+        return self._decodeResponse('getResults', rsp)
+ 
     def __check_slotnames(self, **kwds):
         '''
         Looks for properly formatted and consistent values for 
@@ -752,7 +762,7 @@ class Connection:
                 k['activityId'] = str(k['activityId'])
             else:
                 raise ETClientAPIValueError, 'Missing activityId argument'
-        if cmd == 'getRunActivities':
+        if cmd in ['getRunActivities', 'getRunResults', 'getRunFilepaths', 'getRunSummary']:
             if 'run' in k:
                 k['run'] = str(k['run'])
             else:

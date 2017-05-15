@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+from  eTraveler.clientAPI.connection import ETClientAPINoDataException
+
+myConn = Connection('jrb', 'Dev', 
+                    debug=True, prodServer=False, appSuffix='-jrb')
+#myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
+#myConn = Connection('jrb', 'Raw', prodServer=True)
+rsp = {}
+try:
+    run = '4248D'    #   run = 4248 also works
+    print "Calling getRunSummary with run ", run
+
+    rsp = myConn.getRunSummary(run=run)
+    print "Returned dict for run ", run
+    for k in rsp:
+        print 'Value for key ', k, ' is ', rsp[k]
+
+    sys.exit(0)
+except ETClientAPINoDataException, msg:
+    print 'No data exception: ',msg
+    sys.exit(1)
+except Exception,msg:
+    print 'Operation failed with exception: '
+    print  msg
+    sys.exit(1)
+
