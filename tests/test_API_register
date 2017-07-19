@@ -3,14 +3,15 @@ import sys
 
 from  eTraveler.clientAPI.connection import Connection
 
-myConn = Connection('jrb', 'Raw', prodServer=False)
+#myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Raw', prodServer=False, debug=True)
 newId = ''
 try: 
     newId = myConn.registerHardware(htype='ITL-CCD', site='test',
                                     manufacturer='ITL',
                                     location='Cabinet',
-                                    remarks='try out remarks field',
-                                    experimentSN='ITL-CCD-676')
+                                    remarks='try out protected write',
+                                    experimentSN='ITL-CCD-677')
     print 'New hardware registered.  Returned id is ', newId
 except Exception,msg:
     print 'Hardware registration failed with exception ',msg

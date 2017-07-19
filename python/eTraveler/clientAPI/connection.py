@@ -7,8 +7,14 @@ import json
 import requests
 import sys
 import os
+import os.path
+import stat
 import string
 import datetime
+
+# Note: need to change to configparser for python3
+import ConfigParser
+
 from dateutil.parser import parse as parsetime
 
 #  Might want to specify path or a use a different name for commands module
@@ -35,33 +41,37 @@ class Connection:
         'registerHardware' : ['htype', 'site', 'location', 'experimentSN', 
                               'manufacturerId', 'model', 'manufactureDate',
                               'manufacturer', 'operator', 'quantity',
-                              'remarks'],
+                              'remarks','cnfPath'],
         'defineHardwareType' : ['name', 'description', 'subsystem',
-                                'sequenceWidth', 'batchedFlag', 'operator'],
+                                'sequenceWidth', 'batchedFlag', 'operator',
+                                'cnfPath'],
         'runHarnessedById' : ['hardwareId', 'travelerName',
                               'travelerVersion', 'hardwareGroup', 'site',
-                              'jhInstall', 'operator'],
+                              'jhInstall', 'operator', 'cnfPath'],
         'runHarnessed'     : ['experimentSN', 'htype', 'travelerName',
                               'travelerVersion', 'hardwareGroup', 'site',
-                              'jhInstall', 'operator'],
+                              'jhInstall', 'operator', 'cnfPath'],
         'defineRelationshipType' : ['name', 'description', 'hardwareTypeName',
                                     'minorTypeName', 'numItems', 'slotNames',
-                                    'operator'],
+                                    'operator', 'cnfPath'],
         'defineRelationshipTypeById' : ['name', 'description', 'hardwareTypeId',
                                         'minorTypeId', 'numItems', 'slotNames',
-                                        'operator'],
+                                        'operator', 'cnfPath'],
         'validateYaml' : ['contents', 'validateOnly', 'operator'],
         'uploadYaml' : ['contents', 'reason', 'responsible',
-                        'validateOnly', 'operator'],
+                        'validateOnly', 'operator', 'cnfPath'],
         'setHardwareStatus' : ['experimentSN', 'hardwareTypeName',
                                'hardwareStatusName','reason',
-                               'adding', 'activityId', 'operator'],
+                               'adding', 'activityId', 'operator','cnfPath'],
+        'modifyHardwareLabel' : ['experimentSN', 'hardwareTypeName',
+                                 'labelName', 'labelGroupName', 'reason',
+                                 'adding', 'activityId', 'operator', 'cnfPath'],
         'adjustHardwareLabel' : ['experimentSN','hardwareTypeName',
-                                 'hardwareStatusName',
+                                 'hardwareStatusName', 'cnfPath',
                                  'adding', 'reason', 'activityId', 'operator'],
         'setHardwareLocation' : ['experimentSN', 'hardwareTypeName',
                                  'locationName', 'siteName', 'reason',
-                                 'activityId', 'operator'],
+                                 'activityId', 'operator', 'cnfPath'],
         'getHardwareHierarchy' : ['experimentSN', 'hardwareTypeName',
                                   'noBatched', 'timestamp', 'operator'],
         'getContainingHardware' : ['experimentSN', 'hardwareTypeName',
@@ -80,9 +90,14 @@ class Connection:
         'getFilepathsJH'  : ['function', 'travelerName', 'hardwareType',
                              'stepName', 'model', 'experimentSN',
                              'operator'],
+        'getManualRunResults' : ['function', 'run', 'stepName', 'operator'],
+        'getManualResultsStep' : ['function', 'travelerName', 'hardwareType',
+                           'stepName', 'model', 'experimentSN', 'operator'],
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
+        'getHardwareInstances' : ['function', 'hardwareTypeName',
+                                  'experimentSN', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -103,6 +118,9 @@ class Connection:
         'setHardwareStatus' : {'operator' : None, 'reason' : 'Set via API',
                                'adding' : 'NA', 'activityId' : None},
         'adjustHardwareLabel' : {'operator' : None, 'adding' : 'true',
+                                 'reason' : 'Adjusted via API',
+                                 'activityId' : None},
+        'modifyHardwareLabel' : {'operator' : None, 'adding' : 'true',
                                  'reason' : 'Adjusted via API',
                                  'activityId' : None},
         'setHardwareLocation' : {'operator' : None, 'siteName' : None,
@@ -126,17 +144,23 @@ class Connection:
         'getFilepathsJH'  : {'function' : 'getFilepathsJH' , 
                              'model' : None, 'experimentSN' : None,
                              'operator' : None},
+        'getManualRunResults' : {'function' : 'getManualRunResults',
+                                 'stepName' : None, 'operator' : None},
+        'getManualResultsStep' : {'function' : 'getManualResultsStep',
+                                  'model' : None, 'experimentSN' : None},
         'getActivity' : {'function' : 'getActivity',
                          'operator' : None},
         'getRunActivities' : {'function' : 'getRunActivities',
                               'operator' : None},
         'getRunSummary' : {'function' : 'getRunSummary',
                            'operator' : None},
+        'getHardwareInstances' : {'function' : 'getHardwareInstances',
+                                  'experimentSN' : None, 'operator' : None},
         }
         
         
     def __init__(self, operator=None, db='Prod', prodServer=True,
-                 localServer=False, appSuffix="",
+                 localServer=False, appSuffix='', cnfPath='~/.ssh/.etapi.cnf',
                  exp='LSST-CAMERA', debug=False):
         url = Connection.prodServerUrl + appSuffix
         if not prodServer: url = Connection.devServerUrl + appSuffix
@@ -151,6 +175,8 @@ class Connection:
         self.operator = operator
         self.debug = debug
         self.env = dict(os.environ)
+        self.db = db
+        self.cnfPath = cnfPath
         if debug:
             print " baseurl is ", str(self.baseurl)
             print "Operator is ", str(self.operator)
@@ -163,9 +189,15 @@ class Connection:
         if func not in Connection.API:
             raise KeyError, 'eTraveler API does not support function %s' % str(func)
         cfg = dict(kwds)
+        # function is a hidden parameter; don't want caller to set it
+        if 'function' in cfg: del cfg['function']
         if not 'operator' in cfg:
             cfg['operator'] = None
         want = set(Connection.API[func])
+        if ('cnfPath' in cfg) and (not 'cnfPath' in want):
+            del cfg['cnfPath']
+        if ('cnfPath' in want) and (not 'cnfPath' in cfg):
+            cfg['cnfPath'] = self.cnfPath
         missing = want.difference(cfg)
         missingCopy = set(missing)
         for f in missing:
@@ -176,6 +208,12 @@ class Connection:
             msg = 'Not given enough info to satisfy eTraveler API for %s: missing: %s' % (func, str(sorted(missingCopy)))
             #log.error(msg)
             raise ETClientAPIValueError, msg
+        if 'cnfPath' in cfg:
+            # get operator from the file
+            cfg['operator'] = self.__readOperator(cfg['cnfPath'])
+            del cfg['cnfPath']
+            want -= set(['cnfPath'])
+            
         if cfg['operator'] == None:
             if self.operator == None:
                 raise ETClientAPIValueError, 'Missing parameter: must specify operator'
@@ -215,7 +253,8 @@ class Connection:
                 #print 'In debug mode go no further for now'
                 #return
             print "about to post to ", posturl
-
+            #print "For now, quit instead"
+            #return
         try:
             r = requests.post(posturl, data = {"jsonObject" : jdata})
         except requests.HTTPError, msg:
@@ -245,6 +284,24 @@ class Connection:
             print "this is type of what I got: ", type(r)
             raise ETClientAPIValueError, msg
 
+    def __readOperator(self, cnfpath):
+        '''
+        Use configuration file to determine value for operator.
+        Used only for write operations.
+        '''
+        # Handle initial ~
+        cnfExpanded = os.path.expanduser(cnfpath)
+        
+        # First check that file is sufficiently protected.  Only owner
+        # should have access
+        mode = os.stat(cnfExpanded).st_mode
+        if (mode & (stat.S_IRWXG + stat.S_IRWXO)) != 0:
+            raise ETClientAPIValueError, "Insufficiently protected config file"
+
+        parser = ConfigParser.RawConfigParser()
+        parser.read(cnfExpanded)
+        writer = parser.get('eT API writer', self.db + '_writer')
+        return writer
         
     def registerHardware(self, **kwds):
         '''
@@ -450,6 +507,25 @@ class Connection:
         rsp = self.__make_query(cmd, 'setHardwareStatus', **rqst)
         return self._decodeResponse(cmd, rsp)
 
+    def modifyHardwareLabel(self, **kwds):
+        '''
+        Keyword Arguments:
+           experimentSN  identifier for component whose status will be set
+           htype         hardware type of component
+           label         label name for label to be added or removed
+           labelGroup    label group for label to be added or removed
+           adding        'true' to add, 'false' for remove.  Default 'true'
+           reason        defaults to 'Set by API'
+           activityId    defaults to None
+        Returns: String 'Success' if operation succeeded, else raise exception
+        '''
+        k = dict(kwds)
+        rqst = {}
+        cmd = 'modifyLabels'
+        rqst = self._reviseCall(cmd, k)
+        rsp = self.__make_query(cmd, 'modifyHardwareLabel', **rqst)
+        return self._decodeResponse(cmd, rsp)
+        
     def adjustHardwareLabel(self, **kwds):
         '''
         Keyword Arguments:
@@ -652,8 +728,55 @@ class Connection:
         rsp = self.__make_query('getResults', 'getFilepathsJH', **rqst);
 
         return self._decodeResponse('getResults', rsp)
+
+    def getManualRunResults(self, **kwds):
+        '''
+        Keyword Arguments:
+           run - the only required argument
+           stepName
+        Return if successful:
+           a dict.  Keys 'runNumber', 'runInt', 'rootActivityId',
+           'travelerName', 'travlerVersion', 'hardwareType', 'experimentSN', 
+           'begin', 'end', 'subsystem', and 'runStatus' have scalar values
+           Key 'steps'  has a dict as value.  
+              Keys for the steps dict are step names
+              Value for each key is a dict (call it the step dict)
+                  Keys in the step dict are names (InputPattern.name)
+                  Value for each key is another dict with keys
+                    value, activityId an units
+
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getManualRunResults', k)
+        rsp = self.__make_query('getResults', 'getManualRunResults', **rqst)
+        return self._decodeResponse('getResults', rsp)
+
+    def getManualResultsStep(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype - hardware type name, required
+           travelerName -  required
+           stepName - process step name, required
+           model - cut on hardware model; optional
+           experimentSN - only fetch for this component; optional
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getManualResultsStep', k)
+        rsp = self.__make_query('getResults', 'getManualResultsStep', **rqst);
+
+        return self._decodeResponse('getResults', rsp)
+        
     
     def getActivity(self, **kwds):
+        '''
+        Keyword arguments:
+          activityId (required).
+        Returns:
+          dict of attributes belonging to the activity including
+          id, stepName, beginning and ending timestamps and status
+        '''
         k = dict(kwds)
         rqst = {}
         rqst = self._reviseCall('getActivity', k)
@@ -661,6 +784,13 @@ class Connection:
         return self._decodeResponse('getResults', rsp)
 
     def getRunActivities(self, **kwds):
+        '''
+        Keyword arguments:
+          run (required).
+        Returns:
+          list of dicts, one for each activity in the run. Keys in each
+          dict are the same as for return from getActivity
+        '''
         k = dict(kwds)
         rqst = {}
         rqst = self._reviseCall('getRunActivities', k)
@@ -668,10 +798,42 @@ class Connection:
         return self._decodeResponse('getResults', rsp)
 
     def getRunSummary(self, **kwds):
+        '''
+        Keyword arguments:
+          run (required).
+        Returns:
+          dict of attributes belonging to the run, including
+          hardware type and experimentSN for component
+          traveler name
+          traveler version
+          run number as string and int
+          root activity id
+          subsystem
+          run status
+        '''
         k = dict(kwds)
         rqst = {}
         rqst = self._reviseCall('getRunSummary', k)
         rsp = self.__make_query('getResults', 'getRunSummary', **rqst)
+        return self._decodeResponse('getResults', rsp)
+ 
+    def getHardwareInstances(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype        - Hardware type name. The only required argument
+           experimentSN - If supplied, data for only this instance  will be
+                          returned
+        Return if successful:
+           a list of dicts, one per hardware instance.  
+           Keys for each dict are
+           experimentSN, model, manufacturer, manufacturer id, 
+           remarks (string which may be optionally entered when component
+           is registered) and status
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getHardwareInstances', k)
+        rsp = self.__make_query('getResults', 'getHardwareInstances', **rqst)
         return self._decodeResponse('getResults', rsp)
  
     def __check_slotnames(self, **kwds):
@@ -735,17 +897,27 @@ class Connection:
                 raise ETClientAPIValueError, 'Missing label or status argument'
         elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
                      'getContainingHardware', 'getManufacturerId',
-                     'setManufacturerId']:
+                     'setManufacturerId', 'modifyLabels',
+                     'getHardwareInstances']:
             if 'htype' not in k:
                 raise ETClientAPIValueError, 'Missing htype parameter'
             k['hardwareTypeName'] = k['htype']
             del k['htype']
-        elif cmd in ['getResultsJH', 'getFilepathsJH']:
+        elif cmd in ['getResultsJH', 'getFilepathsJH', 'getManualResultsStep']:
             if 'hardwareType' not in k:
                 if 'htype' not in k:
                     raise ETClientAPIValueError, 'Missing hytpe parameter'
                 k['hardwareType'] = k['htype']
                 del k['htype']
+        if cmd == 'modifyLabels':
+            if 'label' not in k:
+                raise ETClientAPIValueError, 'Missing label parameter'
+            if 'group' not in k:
+                raise ETClientAPIValueError, 'Missing group parameter'
+            k['labelName'] = k['label']
+            k['labelGroupName'] = k['group']
+            del k['label']
+            del k['group']
         if cmd in ['getRunResults', 'getResultsJH']:
             if 'itemFilter' in k:
                 filt = k['itemFilter']
@@ -762,7 +934,8 @@ class Connection:
                 k['activityId'] = str(k['activityId'])
             else:
                 raise ETClientAPIValueError, 'Missing activityId argument'
-        if cmd in ['getRunActivities', 'getRunResults', 'getRunFilepaths', 'getRunSummary']:
+
+        if cmd in ['getRunActivities', 'getRunResults', 'getRunFilepaths', 'getRunSummary', 'getManualRunResults']:
             if 'run' in k:
                 k['run'] = str(k['run'])
             else:
@@ -796,7 +969,7 @@ class Connection:
             if rsp['acknowledge'] == None:
                 if (command == 'runAutomatable'): return rsp['command']
                 elif (command in ['uploadYaml', 'setHardwareStatus',
-                                  'setHardwareLocation', 
+                                  'modifyLabels', 'setHardwareLocation', 
                                   'setManufacturerId']):
                     return 'Success'
                 elif (command in ['getHardwareHierarchy', 

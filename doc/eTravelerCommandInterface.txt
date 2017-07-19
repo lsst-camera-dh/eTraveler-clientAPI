@@ -68,7 +68,7 @@ travelerName    Process.name where Process.id = TravelerType.rootProcessId
 travelerVersion Process.version or empty string, denoting most recent active
 hardwareGroup   HardwareGroup.name needed to uniquely specify traveler
 operator        Activity.createdBy
-oepratorInputs  Null or dict of key-value pairs where the key =
+operatorInputs  Null or dict of key-value pairs where the key =
                 InputPattern.label (and InputPattern.processId = Process.id)
 As for runHarnessed, hardwareId may be replaced by experimentSN + htype
 
@@ -285,12 +285,24 @@ Returns (name and meaning)
 acknowledge        Null if successful, else error string
 manufacturerId     Hardware.manufacturerId if successful, else null
 
-14. getResults
+14. modifyLabels
+
+Input parameters:
+-----------------
+experimentSN        Hardware.lsstId
+hardwareTypeName    HardwareType.name
+labelName           Label.name
+labelGroupName      LabelGroup.name
+adding              'true' for label to be added, 'false' for removed
+reason              LabelHistory.reason
+activityId          LabelHistory.activityId
+operator            must be write-enabled
+15. getResults
 
 This is a whole family of commands.  They all share an input parameter
 'function' used to distinguish among the different subcommands.
 
-14a. getRunResults
+15a. getRunResults
 
 Input parameters
 -----------------
@@ -315,7 +327,7 @@ results          Many-layered data structure.  It's a map. All keys
                  an arraylist of schema instance data.  Each element
                  in the array is itself a map.
 
-14b. getResultsJH
+15b. getResultsJH
 
 Input parameters
 -----------------
@@ -338,7 +350,7 @@ results          Many-layered data structure. It's similar to output
                  Then for each such component, value is structured
                  like getRunResults output.
 
-14c. getRunFilepaths
+15c. getRunFilepaths
 
 Input parameters
 -----------------
@@ -354,7 +366,7 @@ results          Many-layered data structure. It's similar to output
                  for a map of schema names (All data comes from the
                  fileref schema).
 
-14.d getFilepathsJH
+15.d getFilepathsJH
 
 Input parameters
 ----------------
@@ -373,7 +385,7 @@ results          Many-layered data structure. It's similar to output
                  for a map of schema names (All data comes from the
                  fileref schema).
 
-14.e getActivity
+15.e getActivity
 
 Input parameters
 ----------------
@@ -386,7 +398,7 @@ acknowledge     Null if successful, else error string
 results         Map containing activity info: begin, run, step name,
                 final status and activity id
 
-14.f  getRunActivities
+15.f  getRunActivities
 
 Input parameters
 ----------------
@@ -399,4 +411,80 @@ acknowledge     Null if successful, else error string
 results         List of maps, one for each activity in the run, ordered
                 by activity id. Info in each map is the same as for getActivity
 		
+15.g getHardwareInstances
+
+Input parameters
+----------------
+function = 'getHardwareInstances' (fixed)
+hardwareTypeName         (required)
+experimentSN             (optional)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         list of maps, one for each hardware instance of specified
+                type, or just single entry if experimentSN is specified
+		Each map has values for
+		experimentSN
+		model
+		manufacturer
+		manufacturerId
+		remarks
+		status
+
+15.h getManualRunResults
+
+Input parameters
+----------------
+function = "getManualRunResults"
+run         (required)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         A dict containing several scalar values with information
+                about the run plus an entry with key = 'steps' whose
+		value is a dict
+		Keys in this dict are stepnames, values are dicts, one
+		per manual result (of type int, float, string or text;
+		that is, all but filepaths and signatures)
+		associated with the step, keyed by manual result name.
+		Each manual result is itself represented by a dict
+		with fields datatype, units, activityId, isOptional
+		(0 or 1) and value
+
+15.i getManualResultsStep
+
+Input parameters
+----------------
+function = "getManualResultsStep"
+travelerName   (required)
+hardwareType   (required)
+stepName       (required)
+model
+experimentSN
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         Many-layered data structure. It's similar to output
+                for getManualRunResults but has one more level.  The topmost
+                map has keys which designate a component by experimentSN.
+                Then for each such component, value is structured
+                like getManualRunResults output.
+
+15.j getRunSummary
+
+Input parameters
+----------------
+function = "getRunSummary"   (fixed)
+run      (required)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         dict with keys travelerName, travelerVersion, subsystem,
+                run (run # as string), runInt (run # as integer),
+		rootActivityId, experimentSN, hardwareType, begin and
+		end timestamps, and runStatus
 
