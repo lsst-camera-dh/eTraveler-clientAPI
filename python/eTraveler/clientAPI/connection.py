@@ -86,18 +86,23 @@ class Connection:
         'getRunFilepaths' : ['function', 'run', 'stepName', 'operator'],
         'getResultsJH'  : ['function', 'travelerName', 'hardwareType',
                            'stepName', 'schemaName', 'model', 'experimentSN',
-                           'filterKey', 'filterValue', 'operator'],
+                           'filterKey', 'filterValue', 'hardwareLabels',
+                           'operator'],
         'getFilepathsJH'  : ['function', 'travelerName', 'hardwareType',
                              'stepName', 'model', 'experimentSN',
-                             'operator'],
+                             'hardwareLabels', 'operator'],
         'getManualRunResults' : ['function', 'run', 'stepName', 'operator'],
         'getManualResultsStep' : ['function', 'travelerName', 'hardwareType',
-                           'stepName', 'model', 'experimentSN', 'operator'],
+                                  'stepName', 'model', 'experimentSN',
+                                  'hardwareLabels', 'operator'],
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
-        'getHardwareInstances' : ['function', 'hardwareTypeName',
-                                  'experimentSN', 'operator'],
+        'getComponentRuns' : ['function', 'hardwareType', 'experimentSN',
+                              'operator', 'travelerName'],
+        'getHardwareInstances' : ['function', 'hardwareType',
+                                  'experimentSN', 'model', 'hardwareLabels',
+                                  'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -140,22 +145,28 @@ class Connection:
         'getResultsJH'  : {'function' : 'getResultsJH' , 
                            'schemaName' : None, 'model' : None,
                            'experimentSN' : None, 'filterKey' : None,
-                           'filterValue' : None, 'operator' : None},
+                           'filterValue' : None, 'hardwareLabels' : None,
+                           'operator' : None},
         'getFilepathsJH'  : {'function' : 'getFilepathsJH' , 
                              'model' : None, 'experimentSN' : None,
-                             'operator' : None},
+                             'hardwareLabels' : None, 'operator' : None},
         'getManualRunResults' : {'function' : 'getManualRunResults',
                                  'stepName' : None, 'operator' : None},
         'getManualResultsStep' : {'function' : 'getManualResultsStep',
-                                  'model' : None, 'experimentSN' : None},
+                                  'model' : None, 'experimentSN' : None,
+                                  'hardwareLabels' : None},
         'getActivity' : {'function' : 'getActivity',
                          'operator' : None},
         'getRunActivities' : {'function' : 'getRunActivities',
                               'operator' : None},
         'getRunSummary' : {'function' : 'getRunSummary',
                            'operator' : None},
+        'getComponentRuns' : {'function' : 'getComponentRuns',
+                              'travelerName' : None,
+                              'operator' : None},
         'getHardwareInstances' : {'function' : 'getHardwareInstances',
-                                  'experimentSN' : None, 'operator' : None},
+                                  'experimentSN' : None, 'model' : None,
+                                  'hardwareLabels' : None, 'operator' : None},
         }
         
         
@@ -258,10 +269,12 @@ class Connection:
         try:
             r = requests.post(posturl, data = {"jsonObject" : jdata})
         except requests.HTTPError, msg:
-            print "HTTPError: ", str(msg)
+            if self.debug:
+                print "HTTPError: ", str(msg)
             raise
         except requests.RequestException, msg:
-            print "Some other exception: ", str(msg)
+            if self.debug:
+                print "Some other exception: ", str(msg)
             raise
 
         if self.debug:
@@ -277,11 +290,12 @@ class Connection:
             return rsp
         except ValueError, msg:
             # for now just reraise
-            print "Unable to decode json"
-            print "Original: ", str(r)
-            print "Content type: ", r.headers['content-type']
-            print "Text: ", r.text
-            print "this is type of what I got: ", type(r)
+            if self.debug:
+                print "Unable to decode json"
+                print "Original: ", str(r)
+                print "Content type: ", r.headers['content-type']
+                print "Text: ", r.text
+                print "this is type of what I got: ", type(r)
             raise ETClientAPIValueError, msg
 
     def __readOperator(self, cnfpath):
@@ -696,9 +710,12 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            itemFilter (pair: key name and value)
+           hardwareLabels - list of strings, each of form groupName:labelName
         '''
         k = dict(kwds)
         rqst = {}
+        if 'hardwareLabels' in kwds:
+            self.__validateLabels(kwds['hardwareLabels'])
         rqst = self._reviseCall('getResultsJH', k)
         rsp = self.__make_query('getResults', 'getResultsJH', **rqst);
 
@@ -723,6 +740,8 @@ class Connection:
            experimentSN - only fetch for this component; optional
         '''
         k = dict(kwds)
+        if 'hardwareLabels' in kwds:
+            self.__validateLabels(kwds['hardwareLabels'])
         rqst = {}
         rqst = self._reviseCall('getFilepathsJH', k)
         rsp = self.__make_query('getResults', 'getFilepathsJH', **rqst);
@@ -762,6 +781,8 @@ class Connection:
            experimentSN - only fetch for this component; optional
         '''
         k = dict(kwds)
+        if 'hardwareLabels' in kwds:
+            self.__validateLabels(kwds['hardwareLabels'])
         rqst = {}
         rqst = self._reviseCall('getManualResultsStep', k)
         rsp = self.__make_query('getResults', 'getManualResultsStep', **rqst);
@@ -816,6 +837,21 @@ class Connection:
         rqst = self._reviseCall('getRunSummary', k)
         rsp = self.__make_query('getResults', 'getRunSummary', **rqst)
         return self._decodeResponse('getResults', rsp)
+
+    def getComponentRuns(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype - hardware type name, required
+           experimentSN - component identifier, required
+        Returns:
+           for each traveler execution (run) on the component, return
+           a dict of information, similar to return from getRunSummary
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getComponentRuns', k)
+        rsp = self.__make_query('getResults', 'getComponentRuns', **rqst)
+        return self._decodeResponse('getResults', rsp)
  
     def getHardwareInstances(self, **kwds):
         '''
@@ -867,6 +903,27 @@ class Connection:
 
         kwds['slotNames'] = string.join(slist, ',')
         return kwds
+    
+    def __validateLabels(self,labels):
+        if type(labels) == type("a"):
+            self.__validateLabel(labels)
+        else:
+            if type(labels) == type([]):
+                for label in labels:
+                    self.__validateLabel(label)
+            else:
+                raise ETClientAPIValueError, 'Invalid labels list'
+
+    def __validateLabel(self,label):
+        # check for spaces
+        if ' ' in label:
+            raise ETClientAPIValueError('Label "' + label + '" contains a space')
+        parts = label.split(':')
+        if len(parts) == 2:
+            if len(parts[0]) != 0:
+                return
+        raise ETClientAPIValueError('Label "' + label + '" improperly formed')
+
 
     def _reviseContents(self, k):
         if 'contents' in k:
@@ -897,18 +954,22 @@ class Connection:
                 raise ETClientAPIValueError, 'Missing label or status argument'
         elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
                      'getContainingHardware', 'getManufacturerId',
-                     'setManufacturerId', 'modifyLabels',
-                     'getHardwareInstances']:
+                     'setManufacturerId', 'modifyLabels']:
             if 'htype' not in k:
                 raise ETClientAPIValueError, 'Missing htype parameter'
             k['hardwareTypeName'] = k['htype']
             del k['htype']
-        elif cmd in ['getResultsJH', 'getFilepathsJH', 'getManualResultsStep']:
+        elif cmd in ['getResultsJH', 'getFilepathsJH', 'getManualResultsStep',
+                     'getHardwareInstances', 'getComponentRuns']:
             if 'hardwareType' not in k:
                 if 'htype' not in k:
                     raise ETClientAPIValueError, 'Missing hytpe parameter'
                 k['hardwareType'] = k['htype']
                 del k['htype']
+            if 'hardwareLabels' in k:
+                if type(k['hardwareLabels']) == type('a'):
+                    l = [k['hardwareLabels'] ]
+                    k['hardwareLabels'] = l
         if cmd == 'modifyLabels':
             if 'label' not in k:
                 raise ETClientAPIValueError, 'Missing label parameter'
@@ -921,7 +982,7 @@ class Connection:
         if cmd in ['getRunResults', 'getResultsJH']:
             if 'itemFilter' in k:
                 filt = k['itemFilter']
-                print 'itemFilter is ', filt
+                #print 'itemFilter is ', filt
                 self._parseItemFilter(filt)
                 k['filterKey'] = filt[0]
                 k['filterValue'] = filt[1]
@@ -992,6 +1053,7 @@ class Connection:
                 else:
                     raise ETClientAPIException, rsp['acknowledge']
         else:
-            print 'return value of unexpected type', type(rsp)
-            print 'return value cast to string is: ', str(rsp)
+            if self.debug:
+                print 'return value of unexpected type', type(rsp)
+                print 'return value cast to string is: ', str(rsp)
             raise ETClientAPIException, str(rsp)

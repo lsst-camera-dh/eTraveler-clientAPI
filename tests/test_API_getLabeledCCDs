@@ -4,17 +4,17 @@ import sys
 from  eTraveler.clientAPI.connection import Connection
 from  eTraveler.clientAPI.connection import ETClientAPINoDataException
 
-myConn = Connection('jrb', 'Raw', 
-                    debug=True, prodServer=False, localServer=True,
+myConn = Connection('jrb', 'Prod', 
+                    debug=True, prodServer=False,
                     appSuffix='-jrb')
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = {}
 try:
-    htype = 'boojum'    #   run = 4248 also works
+    htype = 'ITL-CCD'    #   run = 4248 also works
     model = "Mark 1"
     #labels = ['SnarkRandom:green']
-    labels = ['SnarkRandom:']
+    labels = ['SR_Grade:', 'SR_Contract']
     print "Calling getHardwareInstances for hardware type ", htype, " one label" 
 
     rsp = myConn.getHardwareInstances(htype=htype, hardwareLabels=labels)

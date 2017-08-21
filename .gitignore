@@ -6,3 +6,4 @@
 *.cfgc
 *.log
 local
+.DS_Store

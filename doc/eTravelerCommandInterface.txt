@@ -340,6 +340,11 @@ model         Hardware.model                (optional)
 experimentSN  Hardware.lsstId               (optional)
 filterKey     *ResultHarnessed.name         (optional)
 filterValue   *ResultHarnessed.value        (optional)
+hardwareLabels                              (optional list)
+
+Value of hardwareLabels arg. is a list, each entry consisting of
+label group name followed by label name with intervening :, e.g.
+['SR_Grade:SR_SEN_Science', 'SR_Grade:SR_SEN_Reserve']
 
 Returns
 --------
@@ -376,6 +381,7 @@ hardwareType  HardwareType.name             (required)
 stepName      Process.name                  (required)
 model         Hardware.model                (optional)
 experimentSN  Hardware.lsstId               (optional)
+hardwareLabels                              (optional list)
 
 Returns
 --------
@@ -416,8 +422,10 @@ results         List of maps, one for each activity in the run, ordered
 Input parameters
 ----------------
 function = 'getHardwareInstances' (fixed)
-hardwareTypeName         (required)
+hardwareType             (required)
 experimentSN             (optional)
+model                    (optional)
+hardwareLabels           (optional list)
 
 Returns
 -------
@@ -487,4 +495,27 @@ results         dict with keys travelerName, travelerVersion, subsystem,
                 run (run # as string), runInt (run # as integer),
 		rootActivityId, experimentSN, hardwareType, begin and
 		end timestamps, and runStatus
+
+15.k  getComponentRuns
+
+Input parameters
+----------------
+function = "getComponentRuns" (fixed)
+hardwareType   (required)
+experimentSN   (required
+
+Returns
+-------
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         a dict.  Keys are rootActivityIds of travelers
+                run on the component. The value for such a key is dict
+		with keys travelerName, travelerVersion, subsystem,
+                run (run # as string), runInt (run # as integer),
+		rootActivityId, experimentSN, hardwareType, begin and
+		end timestamps, and runStatus (same as getRunSummary)
+		plus an additional key hid whose value is internal id
+		of the component.
+		
 
