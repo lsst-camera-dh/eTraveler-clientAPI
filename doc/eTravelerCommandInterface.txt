@@ -444,8 +444,9 @@ results         list of maps, one for each hardware instance of specified
 
 Input parameters
 ----------------
-function = "getManualRunResults"
+function = "getManualRunResults" (fixed)
 run         (required)
+stepName    (optional)
 
 Returns
 -------
@@ -465,12 +466,13 @@ results         A dict containing several scalar values with information
 
 Input parameters
 ----------------
-function = "getManualResultsStep"
+function = "getManualResultsStep" (fixed)
 travelerName   (required)
 hardwareType   (required)
 stepName       (required)
-model
-experimentSN
+model          (optional)
+experimentSN   (optional)
+hardwareLabels           (optional list)
 
 Returns
 -------
@@ -481,7 +483,91 @@ results         Many-layered data structure. It's similar to output
                 Then for each such component, value is structured
                 like getManualRunResults output.
 
-15.j getRunSummary
+15.j getManualRunFilepaths
+
+Input parameters
+----------------
+function = "getManualRunFilepaths" (fixed)
+run         (required)
+stepName    (optional)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         A dict containing several scalar values with information
+                about the run plus an entry with key = 'steps' whose
+		value is a dict
+		Keys in this dict are stepnames, values are dicts, one
+		per manual result of type filepath
+		associated with the step, keyed by manual result name.
+		Each manual result is itself represented by a dict
+		with fields  activityId, isOptional (0 or 1),
+		virtualPath and catalogKey
+
+15.k getManualFilepathsStep
+
+Input parameters
+----------------
+function = "getManualFilepathsStep" (fixed)
+travelerName   (required)
+hardwareType   (required)
+stepName       (required)
+model          (optional)
+experimentSN   (optional)
+hardwareLabels           (optional list)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         Many-layered data structure. It's similar to output
+                for getManualRunFilepaths but has one more level.  The topmost
+                map has keys which designate a component by experimentSN.
+                Then for each such component, value is structured
+                like getManualRunFilepaths output.
+---
+15.l getManualRunSignatures
+
+Input parameters
+----------------
+function = "getManualRunSignatures" (fixed)
+run         (required)
+stepName    (optional)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         A dict containing several scalar values with information
+                about the run plus an entry with key = 'steps' whose
+		value is a dict.
+		Keys in this dict are stepnames, values are dicts, one
+		per manual result of type signature
+		associated with the step, keyed by signerRequest.
+		Each manual result is itself represented by a dict
+		with fields activityId, inputinputPattern, signerValue,
+		signerComment and signatureTS.
+
+15.m getManualSignaturesStep
+
+Input parameters
+----------------
+function = "getManualSignaturesStep" (fixed)
+travelerName   (required)
+hardwareType   (required)
+stepName       (required)
+model          (optional)
+experimentSN   (optional)
+hardwareLabels           (optional list)
+
+Returns
+-------
+acknowledge     Null if successful, else error string
+results         Many-layered data structure. It's similar to output
+                for getManualSignatureResults but has one more level.
+		The topmost map has keys which designate a component
+		by experimentSN. Then for each such component, value
+		is structured like getManualRunSignatures output.
+
+15.n getRunSummary
 
 Input parameters
 ----------------
@@ -496,7 +582,7 @@ results         dict with keys travelerName, travelerVersion, subsystem,
 		rootActivityId, experimentSN, hardwareType, begin and
 		end timestamps, and runStatus
 
-15.k  getComponentRuns
+15.o  getComponentRuns
 
 Input parameters
 ----------------

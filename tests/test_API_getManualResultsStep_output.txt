@@ -1,0 +1,62 @@
+ baseurl is  http://lsst-camera-dev.slac.stanford.edu/eTraveler-jrb/Prod/Results/
+Operator is  jrb
+json string: 
+{"function": "getManualResultsStep", "stepName": "SR-RCV-02_Shipping_Documenation", "travelerName": "SR-GEN-RCV-02", "experimentSN": "ITL-3800C-058", "hardwareLabels": null, "hardwareType": "ITL-CCD", "operator": "jrb", "model": null}
+about to post to  http://lsst-camera-dev.slac.stanford.edu/eTraveler-jrb/Prod/Results/getResults
+No exceptions! 
+Status code:  200
+Content type:  application/json;charset=UTF-8
+this is type of what I got:  <class 'requests.models.Response'>
+As text:  { "acknowledge": null,
+  "results": {"ITL-3800C-058":{"travelerName":"SR-GEN-RCV-02","travelerVersion":6,"rootActivityId":4404,"hardwareId":60,"runInt":371,"hardwareType":"ITL-CCD","runNumber":"371","experimentSN":"ITL-3800C-058","end":"2016-09-21T15:25:56.0","begin":"2016-09-15T19:39:44.0","steps":{"SR-RCV-02_Shipping_Documenation":{"Missing_Documentation":{"activityId":4409,"datatype":"string","units":"","isOptional":0,"value":"No"},"Consistent_ID_Labels":{"activityId":4409,"datatype":"string","units":"","isOptional":0,"value":"Yes"},"Other_Received_Documentation_Concerns":{"activityId":4409,"datatype":"string","units":"","isOptional":0,"value":"None"},"Consistent_Previous_Data":{"activityId":4409,"datatype":"string","units":"","isOptional":0,"value":"N/A"},"Additional_Comments":{"activityId":4409,"datatype":"string","units":"","isOptional":0,"value":"None"}}}}} }
+
+
+
+**** Data for component  ITL-3800C-058
+Value for key  travelerVersion  is  6
+Value for key  begin  is  2016-09-15T19:39:44.0
+Value for key  travelerName  is  SR-GEN-RCV-02
+Value for key  runNumber  is  371
+Value for key  experimentSN  is  ITL-3800C-058
+Value for key  hardwareType  is  ITL-CCD
+Value for key  hardwareId  is  60
+Value for key  end  is  2016-09-21T15:25:56.0
+Value for key  runInt  is  371
+Value for key  rootActivityId  is  4404
+
+For stepName SR-RCV-02_Shipping_Documenation
+
+Got data for input name Other_Received_Documentation_Concerns
+For key 'datatype' value is:  string
+For key 'units' value is:  
+For key 'activityId' value is:  4409
+For key 'value' value is:  None
+For key 'isOptional' value is:  0
+
+Got data for input name Consistent_ID_Labels
+For key 'datatype' value is:  string
+For key 'units' value is:  
+For key 'activityId' value is:  4409
+For key 'value' value is:  Yes
+For key 'isOptional' value is:  0
+
+Got data for input name Additional_Comments
+For key 'datatype' value is:  string
+For key 'units' value is:  
+For key 'activityId' value is:  4409
+For key 'value' value is:  None
+For key 'isOptional' value is:  0
+
+Got data for input name Missing_Documentation
+For key 'datatype' value is:  string
+For key 'units' value is:  
+For key 'activityId' value is:  4409
+For key 'value' value is:  No
+For key 'isOptional' value is:  0
+
+Got data for input name Consistent_Previous_Data
+For key 'datatype' value is:  string
+For key 'units' value is:  
+For key 'activityId' value is:  4409
+For key 'value' value is:  N/A
+For key 'isOptional' value is:  0

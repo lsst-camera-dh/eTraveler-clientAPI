@@ -92,9 +92,17 @@ class Connection:
                              'stepName', 'model', 'experimentSN',
                              'hardwareLabels', 'operator'],
         'getManualRunResults' : ['function', 'run', 'stepName', 'operator'],
+        'getManualRunFilepaths' : ['function', 'run','stepName', 'operator'], 
+        'getManualRunSignatures' : ['function', 'run','stepName', 'operator'], 
         'getManualResultsStep' : ['function', 'travelerName', 'hardwareType',
                                   'stepName', 'model', 'experimentSN',
                                   'hardwareLabels', 'operator'],
+        'getManualFilepathsStep' : ['function', 'travelerName', 'hardwareType',
+                                    'stepName', 'model', 'experimentSN',
+                                    'hardwareLabels', 'operator'],
+        'getManualSignaturesStep' : ['function', 'travelerName', 'hardwareType',
+                                     'stepName', 'model', 'experimentSN',
+                                     'hardwareLabels', 'operator'],
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
@@ -152,7 +160,17 @@ class Connection:
                              'hardwareLabels' : None, 'operator' : None},
         'getManualRunResults' : {'function' : 'getManualRunResults',
                                  'stepName' : None, 'operator' : None},
+        'getManualRunFilepaths' : {'function' : 'getManualRunFilepaths',
+                                 'stepName' : None, 'operator' : None},
+        'getManualRunSignatures' : {'function' : 'getManualRunSignatures',
+                                    'stepName' : None, 'operator' : None},
         'getManualResultsStep' : {'function' : 'getManualResultsStep',
+                                  'model' : None, 'experimentSN' : None,
+                                  'hardwareLabels' : None},
+        'getManualFilepathsStep' : {'function' : 'getManualFilepathsStep',
+                                  'model' : None, 'experimentSN' : None,
+                                  'hardwareLabels' : None},
+        'getManualSignaturesStep' : {'function' : 'getManualSignaturesStep',
                                   'model' : None, 'experimentSN' : None,
                                   'hardwareLabels' : None},
         'getActivity' : {'function' : 'getActivity',
@@ -249,7 +267,6 @@ class Connection:
         # make a dict of parameters
         query = self.__make_params(func, **kwds)
         jdata = json.dumps(query)
-
         posturl = self.baseurl + command
 
         if self.debug:
@@ -762,13 +779,56 @@ class Connection:
               Value for each key is a dict (call it the step dict)
                   Keys in the step dict are names (InputPattern.name)
                   Value for each key is another dict with keys
-                    value, activityId an units
-
+                    value, activityId, units and isOptional
         '''
         k = dict(kwds)
         rqst = {}
         rqst = self._reviseCall('getManualRunResults', k)
         rsp = self.__make_query('getResults', 'getManualRunResults', **rqst)
+        return self._decodeResponse('getResults', rsp)
+    def getManualRunFilepaths(self, **kwds):
+        '''
+        Keyword Arguments:
+           run - the only required argument
+           stepName
+        Return if successful:
+           a dict.  Keys 'runNumber', 'runInt', 'rootActivityId',
+           'travelerName', 'travlerVersion', 'hardwareType', 'experimentSN', 
+           'begin', 'end', 'subsystem', and 'runStatus' have scalar values
+           Key 'steps'  has a dict as value.  
+              Keys for the steps dict are step names
+              Value for each key is a dict (call it the step dict)
+                  Keys in the step dict are names (InputPattern.name)
+                  Value for each key is another dict with keys
+                    virtualPath, catalogKey, activityId, isOptional
+
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getManualRunFilepaths', k)
+        rsp = self.__make_query('getResults', 'getManualRunFilepaths', **rqst)
+        return self._decodeResponse('getResults', rsp)
+
+    def getManualRunSignatures(self, **kwds):
+        '''
+        Keyword Arguments:
+           run - the only required argument
+           stepName
+        Return if successful:
+           a dict.  Keys 'runNumber', 'runInt', 'rootActivityId',
+           'travelerName', 'travlerVersion', 'hardwareType', 'experimentSN', 
+           'begin', 'end', 'subsystem', and 'runStatus' have scalar values
+           Key 'steps'  has a dict as value.  
+              Keys for the steps dict are step names
+              Value for each key is a dict (call it the step dict)
+                  Keys in the step dict are names (InputPattern.name)
+                  Value for each key is another dict with keys
+                    value, activityId an units
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getManualRunSignatures', k)
+        rsp = self.__make_query('getResults', 'getManualRunSignatures', **rqst)
         return self._decodeResponse('getResults', rsp)
 
     def getManualResultsStep(self, **kwds):
@@ -789,6 +849,42 @@ class Connection:
 
         return self._decodeResponse('getResults', rsp)
         
+    def getManualFilepathsStep(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype - hardware type name, required
+           travelerName -  required
+           stepName - process step name, required
+           model - cut on hardware model; optional
+           experimentSN - only fetch for this component; optional
+        '''
+        k = dict(kwds)
+        if 'hardwareLabels' in kwds:
+            self.__validateLabels(kwds['hardwareLabels'])
+        rqst = {}
+        rqst = self._reviseCall('getManualFilepathsStep', k)
+        rsp = self.__make_query('getResults', 'getManualFilepathsStep', **rqst);
+
+        return self._decodeResponse('getResults', rsp)
+
+    def getManualSignaturesStep(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype - hardware type name, required
+           travelerName -  required
+           stepName - process step name, required
+           model - cut on hardware model; optional
+           experimentSN - only fetch for this component; optional
+        '''
+        k = dict(kwds)
+        if 'hardwareLabels' in kwds:
+            self.__validateLabels(kwds['hardwareLabels'])
+        rqst = {}
+        rqst = self._reviseCall('getManualSignaturesStep', k)
+        rsp= self.__make_query('getResults', 'getManualSignaturesStep', **rqst);
+
+        return self._decodeResponse('getResults', rsp)
+
     
     def getActivity(self, **kwds):
         '''
@@ -960,6 +1056,7 @@ class Connection:
             k['hardwareTypeName'] = k['htype']
             del k['htype']
         elif cmd in ['getResultsJH', 'getFilepathsJH', 'getManualResultsStep',
+                     'getManualFilepathsStep', 'getManualSignaturesStep',
                      'getHardwareInstances', 'getComponentRuns']:
             if 'hardwareType' not in k:
                 if 'htype' not in k:
@@ -996,7 +1093,9 @@ class Connection:
             else:
                 raise ETClientAPIValueError, 'Missing activityId argument'
 
-        if cmd in ['getRunActivities', 'getRunResults', 'getRunFilepaths', 'getRunSummary', 'getManualRunResults']:
+        if cmd in ['getRunActivities', 'getRunResults', 'getRunFilepaths',
+                   'getRunSummary', 'getManualRunResults',
+                   'getManualRunFilepaths', 'getManualRunSignatures']:
             if 'run' in k:
                 k['run'] = str(k['run'])
             else:

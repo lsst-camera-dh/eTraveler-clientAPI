@@ -1,0 +1,273 @@
+Invoking getManualFilepathsStep with arguments 
+htype= LCA-10753_RSA  travelerName= SR-RSA-ASY-02  stepName= SR-RSA-ASY-02_Analyze-Data-Run1
+Data returned for  5  components
+For component LCA-10753_RSA-013 
+
+travelerVersion  :  7
+begin  :  2017-08-15T20:20:30.0
+travelerName  :  SR-RSA-ASY-02
+runNumber  :  5195
+experimentSN  :  LCA-10753_RSA-013
+hardwareType  :  LCA-10753_RSA
+hardwareId  :  1885
+end  :  
+runInt  :  5195
+rootActivityId  :  26984
+For stepName SR-RSA-ASY-02_Analyze-Data-Run1 
+
+Input pattern name:  RSA_Flatness_Plot
+catalogKey : 20006641
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_FLAT_plot.tiff
+Input pattern name:  Ball_Fitting_Summary
+catalogKey : 20006638
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_BAL_fit_params.txt
+Input pattern name:  RSA_Absolute_Height_Plot
+catalogKey : 20006650
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_ABSZ_plot.tiff
+Input pattern name:  RSA_Flatness_Quantile_Data
+catalogKey : 20006647
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_FLAT_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Statistical_Summary
+catalogKey : 20006659
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_ABSZ_StatsReport.txt
+Input pattern name:  RSA_Absolute_Height_Quantile_Data
+catalogKey : 20006656
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_ABSZ_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Histogram_Plot
+catalogKey : 20006653
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_ABSZ_histo.tiff
+Input pattern name:  RSA_Flatness_Histogram_Plot
+catalogKey : 20006644
+activityId : 27346
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-013/5195/SR-RSA-ASY-02_Analyze-Data-Run1/27346/RSA-013_20170818-12H55M_run1_RSA_FLAT_histo.tiff
+For component LCA-10753_RSA-012 
+
+travelerVersion  :  7
+begin  :  2017-07-19T13:56:17.0
+travelerName  :  SR-RSA-ASY-02
+runNumber  :  4922
+experimentSN  :  LCA-10753_RSA-012
+hardwareType  :  LCA-10753_RSA
+hardwareId  :  1884
+end  :  2017-08-02T16:08:09.0
+runInt  :  4922
+rootActivityId  :  24668
+For stepName SR-RSA-ASY-02_Analyze-Data-Run1 
+
+Input pattern name:  RSA_Flatness_Plot
+catalogKey : 19767756
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_FLAT_plot.tiff
+Input pattern name:  Ball_Fitting_Summary
+catalogKey : 19767753
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_BAL_fit_params.txt
+Input pattern name:  RSA_Absolute_Height_Plot
+catalogKey : 19767765
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_ABSZ_plot.tiff
+Input pattern name:  RSA_Flatness_Quantile_Data
+catalogKey : 19767762
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_FLAT_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Statistical_Summary
+catalogKey : 19767774
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_ABSZ_StatsReport.txt
+Input pattern name:  RSA_Absolute_Height_Quantile_Data
+catalogKey : 19767771
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_ABSZ_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Histogram_Plot
+catalogKey : 19767768
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_ABSZ_histo.tiff
+Input pattern name:  RSA_Flatness_Histogram_Plot
+catalogKey : 19767759
+activityId : 24745
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-012/4922/SR-RSA-ASY-02_Analyze-Data-Run1/24745/RSA-012_20170720-10H03M_run1_RSA_FLAT_histo.tiff
+For component LCA-10753_RSA-011 
+
+travelerVersion  :  7
+begin  :  2017-07-11T14:55:51.0
+travelerName  :  SR-RSA-ASY-02
+runNumber  :  4855
+experimentSN  :  LCA-10753_RSA-011
+hardwareType  :  LCA-10753_RSA
+hardwareId  :  1883
+end  :  
+runInt  :  4855
+rootActivityId  :  23997
+For stepName SR-RSA-ASY-02_Analyze-Data-Run1 
+
+Input pattern name:  RSA_Flatness_Plot
+catalogKey : 19871320
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_FLAT_plot.tiff
+Input pattern name:  Ball_Fitting_Summary
+catalogKey : 19871317
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_BAL_fit_params.txt
+Input pattern name:  RSA_Absolute_Height_Plot
+catalogKey : 19871329
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_ABSZ_plot.tiff
+Input pattern name:  RSA_Flatness_Quantile_Data
+catalogKey : 19871326
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_FLAT_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Statistical_Summary
+catalogKey : 19871338
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_ABSZ_StatsReport.txt
+Input pattern name:  RSA_Absolute_Height_Quantile_Data
+catalogKey : 19871335
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_ABSZ_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Histogram_Plot
+catalogKey : 19871332
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_ABSZ_histo.tiff
+Input pattern name:  RSA_Flatness_Histogram_Plot
+catalogKey : 19871323
+activityId : 24067
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-011/4855/SR-RSA-ASY-02_Analyze-Data-Run1/24067/RSA-011_20170706-11H13M_run1_RSA_FLAT_histo.tiff
+For component LCA-10753_RSA-010 
+
+travelerVersion  :  7
+begin  :  2017-05-09T14:09:25.0
+travelerName  :  SR-RSA-ASY-02
+runNumber  :  4270
+experimentSN  :  LCA-10753_RSA-010
+hardwareType  :  LCA-10753_RSA
+hardwareId  :  1882
+end  :  
+runInt  :  4270
+rootActivityId  :  19379
+For stepName SR-RSA-ASY-02_Analyze-Data-Run1 
+
+Input pattern name:  RSA_Flatness_Plot
+catalogKey : 18986256
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_FLAT_plot.tiff
+Input pattern name:  Ball_Fitting_Summary
+catalogKey : 18986253
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_BAL_summary.txt
+Input pattern name:  RSA_Absolute_Height_Plot
+catalogKey : 18986265
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_ABSZ_plot.tiff
+Input pattern name:  RSA_Flatness_Quantile_Data
+catalogKey : 18986262
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_FLAT_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Statistical_Summary
+catalogKey : 18986274
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_ABSZ_StatsReport.txt
+Input pattern name:  RSA_Absolute_Height_Quantile_Data
+catalogKey : 18986271
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_ABSZ_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Histogram_Plot
+catalogKey : 18986268
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_ABSZ_histo.tiff
+Input pattern name:  RSA_Flatness_Histogram_Plot
+catalogKey : 18986259
+activityId : 19480
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-010/4270/SR-RSA-ASY-02_Analyze-Data-Run1/19480/RSA-010_20170510-09H54M_run1_RSA_FLAT_histo.tiff
+For component LCA-10753_RSA-009 
+
+travelerVersion  :  7
+begin  :  2017-07-12T15:28:34.0
+travelerName  :  SR-RSA-ASY-02
+runNumber  :  4864
+experimentSN  :  LCA-10753_RSA-009
+hardwareType  :  LCA-10753_RSA
+hardwareId  :  1779
+end  :  
+runInt  :  4864
+rootActivityId  :  24072
+For stepName SR-RSA-ASY-02_Analyze-Data-Run1 
+
+Input pattern name:  RSA_Flatness_Plot
+catalogKey : 19871232
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_FLAT_plot.tiff
+Input pattern name:  Ball_Fitting_Summary
+catalogKey : 19871229
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_BAL_fit_params.txt
+Input pattern name:  RSA_Absolute_Height_Plot
+catalogKey : 19871241
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_ABSZ_plot.tiff
+Input pattern name:  RSA_Flatness_Quantile_Data
+catalogKey : 19871238
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_FLAT_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Statistical_Summary
+catalogKey : 19871250
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_ABSZ_StatsReport.txt
+Input pattern name:  RSA_Absolute_Height_Quantile_Data
+catalogKey : 19871247
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_ABSZ_quantile.txt
+Input pattern name:  RSA_Absolute_Height_Histogram_Plot
+catalogKey : 19871244
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_ABSZ_histo.tiff
+Input pattern name:  RSA_Flatness_Histogram_Plot
+catalogKey : 19871235
+activityId : 24114
+isOptional : 0
+virtualPath : /LSST/eTravelerFiles/SLAC-prod/prod/LCA-10753_RSA/LCA-10753_RSA-009/4864/SR-RSA-ASY-02_Analyze-Data-Run1/24114/RSA-009_20170712-11H30M_run1_RSA_FLAT_histo.tiff

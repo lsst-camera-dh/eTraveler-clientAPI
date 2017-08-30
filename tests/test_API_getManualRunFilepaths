@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+
+
+myConn = Connection('jrb', 'Prod', prodServer=False, localServer=True,
+                    debug=True, appSuffix='-jrb')
+#myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
+#myConn = Connection('jrb', 'Raw', prodServer=True)
+rsp = {}
+try:
+    run = '4864'
+    #rsp = myConn.getManualRunResults(run=run)
+    rsp = myConn.getManualRunFilepaths(run=run)
+    #run = '4618'   Prod db
+    #rsp = myConn.getManualRunResults(run=run, stepName='record_rga_no_scan')
+    for k in rsp:
+        if k != 'steps':
+            print 'Value for key ',k, ' is ',rsp[k]
+    steps = rsp['steps']
+    for s in steps:
+        print ('\nFor stepName %s' % (s) )
+        iv = steps[s]
+	for iname in iv:
+            print('\nGot data for input name %s' % (iname))
+	    inp = iv[iname]
+            for k in inp:
+                print "For key '" + k + "' value is: ", inp[k]
+    sys.exit(0)
+except Exception,msg:
+    print 'Operation failed with exception: '
+    print  msg
+    sys.exit(1)
+
