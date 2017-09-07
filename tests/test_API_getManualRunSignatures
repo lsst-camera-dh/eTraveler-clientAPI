@@ -4,14 +4,16 @@ import sys
 from  eTraveler.clientAPI.connection import Connection
 
 
-myConn = Connection('jrb', 'Prod', prodServer=False,
+myConn = Connection('jrb', 'Prod', prodServer=False, 
                     debug=True, appSuffix='-jrb')
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = {}
 try:
-    run = '4955'
-    rsp = myConn.getManualRunSignatures(run=run)
+    #run = '4955'
+    run = '5108'
+    rsp = myConn.getManualRunSignatures(run=run,
+                                        activityStatus=['success', 'inProgress'])
     #rsp = myConn.getManualRunResults(run=run, stepName='record_rga_no_scan')
     for k in rsp:
         if k != 'steps':

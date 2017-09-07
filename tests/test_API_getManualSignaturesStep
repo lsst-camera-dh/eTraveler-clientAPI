@@ -7,15 +7,19 @@ from  eTraveler.clientAPI.connection import Connection
 myConn = Connection('jrb', 'Prod', prodServer=False, appSuffix='-jrb')
 
 rsp = {}
-htype='e2v-CCD'
+##htype='e2v-CCD'
+htype='LCA-10307'
 traveler='NCR'
-step = 'NCR_C_Final_disposition'
+##step = 'NCR_C_Final_disposition'
+step = 'NCR_Approval'
 
 print 'Invoking getManualSignaturesStep with arguments '
 print 'htype=',htype, ' travelerName=',traveler, ' stepName=',step
 #,' experimentSN=',eSN
 try:
     rsp = myConn.getManualSignaturesStep(htype=htype, stepName=step,
+                                         activityStatus=['success','inProgress',
+                                                         'paused'],
                                          travelerName=traveler)
 
     print 'Data returned for ',len(rsp), ' components'

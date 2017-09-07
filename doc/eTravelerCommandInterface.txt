@@ -321,7 +321,7 @@ acknowledge      Null if successful, else error string
 results          Many-layered data structure.  It's a map. All keys
                  have scalar values except for the key 'steps'.
                  Value of 'steps' is a map where keys are
-		 process step names. Value for such a key is a map
+                 process step names. Value for such a key is a map
                  whose keys are schema names for the schemas used in
                  that step.   Value for a particular schema name is
                  an arraylist of schema instance data.  Each element
@@ -416,7 +416,7 @@ Returns
 acknowledge     Null if successful, else error string
 results         List of maps, one for each activity in the run, ordered
                 by activity id. Info in each map is the same as for getActivity
-		
+                
 15.g getHardwareInstances
 
 Input parameters
@@ -432,13 +432,13 @@ Returns
 acknowledge     Null if successful, else error string
 results         list of maps, one for each hardware instance of specified
                 type, or just single entry if experimentSN is specified
-		Each map has values for
-		experimentSN
-		model
-		manufacturer
-		manufacturerId
-		remarks
-		status
+                Each map has values for
+                experimentSN
+                model
+                manufacturer
+                manufacturerId
+                remarks
+                status
 
 15.h getManualRunResults
 
@@ -453,14 +453,14 @@ Returns
 acknowledge     Null if successful, else error string
 results         A dict containing several scalar values with information
                 about the run plus an entry with key = 'steps' whose
-		value is a dict
-		Keys in this dict are stepnames, values are dicts, one
-		per manual result (of type int, float, string or text;
-		that is, all but filepaths and signatures)
-		associated with the step, keyed by manual result name.
-		Each manual result is itself represented by a dict
-		with fields datatype, units, activityId, isOptional
-		(0 or 1) and value
+                value is a dict
+                Keys in this dict are stepnames, values are dicts, one
+                per manual result (of type int, float, string or text;
+                that is, all but filepaths and signatures)
+                associated with the step, keyed by manual result name.
+                Each manual result is itself represented by a dict
+                with fields datatype, units, activityId, isOptional
+                (0 or 1) and value
 
 15.i getManualResultsStep
 
@@ -496,13 +496,13 @@ Returns
 acknowledge     Null if successful, else error string
 results         A dict containing several scalar values with information
                 about the run plus an entry with key = 'steps' whose
-		value is a dict
-		Keys in this dict are stepnames, values are dicts, one
-		per manual result of type filepath
-		associated with the step, keyed by manual result name.
-		Each manual result is itself represented by a dict
-		with fields  activityId, isOptional (0 or 1),
-		virtualPath and catalogKey
+                value is a dict
+                Keys in this dict are stepnames, values are dicts, one
+                per manual result of type filepath
+                associated with the step, keyed by manual result name.
+                Each manual result is itself represented by a dict
+                with fields  activityId, isOptional (0 or 1),
+                virtualPath and catalogKey
 
 15.k getManualFilepathsStep
 
@@ -530,21 +530,26 @@ results         Many-layered data structure. It's similar to output
 Input parameters
 ----------------
 function = "getManualRunSignatures" (fixed)
-run         (required)
-stepName    (optional)
+run            (required)
+stepName       (optional)
+activityStatus (optional list)
 
 Returns
 -------
 acknowledge     Null if successful, else error string
 results         A dict containing several scalar values with information
                 about the run plus an entry with key = 'steps' whose
-		value is a dict.
-		Keys in this dict are stepnames, values are dicts, one
-		per manual result of type signature
-		associated with the step, keyed by signerRequest.
-		Each manual result is itself represented by a dict
-		with fields activityId, inputinputPattern, signerValue,
-		signerComment and signatureTS.
+                value is a dict.
+                Keys in this dict are stepnames, values are dicts, one
+                per manual result of type signature
+                associated with the step, keyed by signerRequest.
+                Each manual result is itself represented by a dict
+                with fields activityId, inputinputPattern, signerValue,
+                signerComment and signatureTS.
+                Normally (activityStatus argument omitted) returns data only
+                for most recent activity with status 'success'. Use the
+                argument to include other possibilities such as
+                'paused' or 'inProgress'
 
 15.m getManualSignaturesStep
 
@@ -556,16 +561,17 @@ hardwareType   (required)
 stepName       (required)
 model          (optional)
 experimentSN   (optional)
-hardwareLabels           (optional list)
+hardwareLabels (optional list)
+activityStatus (optional list)
 
 Returns
 -------
 acknowledge     Null if successful, else error string
 results         Many-layered data structure. It's similar to output
                 for getManualSignatureResults but has one more level.
-		The topmost map has keys which designate a component
-		by experimentSN. Then for each such component, value
-		is structured like getManualRunSignatures output.
+                The topmost map has keys which designate a component
+                by experimentSN. Then for each such component, value
+                is structured like getManualRunSignatures output.
 
 15.n getRunSummary
 
@@ -579,8 +585,8 @@ Returns
 acknowledge     Null if successful, else error string
 results         dict with keys travelerName, travelerVersion, subsystem,
                 run (run # as string), runInt (run # as integer),
-		rootActivityId, experimentSN, hardwareType, begin and
-		end timestamps, and runStatus
+                rootActivityId, experimentSN, hardwareType, begin and
+                end timestamps, and runStatus
 
 15.o  getComponentRuns
 
@@ -588,20 +594,19 @@ Input parameters
 ----------------
 function = "getComponentRuns" (fixed)
 hardwareType   (required)
-experimentSN   (required
+experimentSN   (required)
 
-Returns
--------
 Returns
 -------
 acknowledge     Null if successful, else error string
 results         a dict.  Keys are rootActivityIds of travelers
                 run on the component. The value for such a key is dict
-		with keys travelerName, travelerVersion, subsystem,
+                with keys travelerName, travelerVersion, subsystem,
                 run (run # as string), runInt (run # as integer),
-		rootActivityId, experimentSN, hardwareType, begin and
-		end timestamps, and runStatus (same as getRunSummary)
-		plus an additional key hid whose value is internal id
-		of the component.
-		
+                rootActivityId, experimentSN, hardwareType, begin and
+                end timestamps, and runStatus (same as getRunSummary)
+                plus an additional key hid whose value is internal id
+                of the component.
+
+                
 
