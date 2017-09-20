@@ -608,5 +608,39 @@ results         a dict.  Keys are rootActivityIds of travelers
                 plus an additional key hid whose value is internal id
                 of the component.
 
+15.p getMissingSignatures
+Returns information about incomplete signatures for activities if
+   * its status is in activityStatus list
+   * it meets other optional filter criteria
+Input parameters
+----------------
+function = "getMissingSignatures" (fixed)
+activityStatus  (default ['inProgress','paused','success']
+travelerName    (optional)
+stepName        (optional)
+hardwareType    (optional)
+model           (optional but requires hardwareType)
+experimentSN    (optional but requires hardwareType)
+
+Returns
+--------
+acknowledge     Null if successful, else error string
+results         A dict.  Keys are hardware id for components
+                with at least one instance of incomplete signature
+                meeting any supplied filter criteria.
+                Value for a single key is
+                  A dict.  Keyed by root activity id
+                  Most keys have scalar value (info about the run):
+                     hardware type, experientSN, run number,
+                     traveler name, root activity id, start of run TS
+                  One key ("steps") has value 
+                     A dict. Keyed by process name
+                     Value for single key is an array list
+                        Each elt in array is a dict with keys for
+                          signer request
+                          status of activity
+                          activity id
+                          start of step timestamp
+
                 
 

@@ -105,6 +105,9 @@ class Connection:
                                      'stepName', 'model', 'experimentSN',
                                      'hardwareLabels', 'activityStatus',
                                      'operator'],
+        'getMissingSignatures' : ['function', 'travelerName', 'stepName',
+                                  'hardwareType', 'model', 'experimentSN',
+                                  'activityStatus', 'NCRLabels', 'operator'],
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
@@ -178,6 +181,10 @@ class Connection:
                                      'model' : None, 'experimentSN' : None,
                                      'hardwareLabels' : None,
                                      'activityStatus' : None},
+        'getMissingSignatures' : {'function' : 'getMissingSignatures', 'travelerName' : None,
+                                  'stepName' : None, 'hardwareType' : None, 'model' : None,
+                                  'experimentSN' : None, 'activityStatus' : None,
+                                  'NCRLabels' : None, 'operator' : None},
         'getActivity' : {'function' : 'getActivity',
                          'operator' : None},
         'getRunActivities' : {'function' : 'getRunActivities',
@@ -732,7 +739,7 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            itemFilter (pair: key name and value)
-           hardwareLabels - list of strings, each of form groupName:labelName
+           hardwareLabels - list of strings, each of form groupName:labelName; optional
         '''
         k = dict(kwds)
         rqst = {}
@@ -760,6 +767,7 @@ class Connection:
            stepName - process step name, required
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
+           hardwareLabels - list of strings, each of form groupName:labelName; optional
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -844,6 +852,7 @@ class Connection:
            stepName - process step name, required
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
+           hardwareLabels - list of strings, each of form groupName:labelName; optional
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -862,6 +871,7 @@ class Connection:
            stepName - process step name, required
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
+           hardwareLabels - list of strings, each of form groupName:labelName; optional
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -880,6 +890,7 @@ class Connection:
            stepName - process step name, required
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
+           hardwareLabels - list of strings, each of form groupName:labelName; optional
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -890,7 +901,25 @@ class Connection:
 
         return self._decodeResponse('getResults', rsp)
 
-    
+    def getMissingSignatures(self, **kwds):
+        '''
+        Keyword Arguments:
+           travelerName -  optional
+           stepName - process step name, optional
+           htype - hardware type name. Required if either model or expSN is used, else
+                   optional
+           model - cut on hardware model; optional
+           experimentSN - only fetch for this component; optional
+           activityStatus - list of strings of status values.  Defaults to
+                            ['success', 'inProgress', 'paused']
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getMissingSignatures', k)
+        rsp= self.__make_query('getResults', 'getMissingSignatures', **rqst);
+
+        return self._decodeResponse('getResults', rsp)
+        
     def getActivity(self, **kwds):
         '''
         Keyword arguments:
@@ -1081,6 +1110,10 @@ class Connection:
             k['labelGroupName'] = k['group']
             del k['label']
             del k['group']
+        if cmd == 'getMissingSignatures':
+            if 'htype' in k:
+              k['hardwareType'] = k['htype']
+              del k['htype']
         if cmd in ['getRunResults', 'getResultsJH']:
             if 'itemFilter' in k:
                 filt = k['itemFilter']
