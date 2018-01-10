@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -12,24 +13,24 @@ rsp = {}
 try:
     activity = 23000
     run = '4248D'    #   run = 4248 also works
-    print "Calling getActivity with activityId ",activity
+    print("Calling getActivity with activityId ",activity)
     rsp = myConn.getActivity(activityId=activity)
     for k in rsp:
-        print 'Value for key ',k, ' is ',rsp[k]
+        print('Value for key ',k, ' is ',rsp[k])
 
-    print "Calling getRunActivities with run ", run
+    print("Calling getRunActivities with run ", run)
     rsp = myConn.getRunActivities(run=run)
-    print "Entries for ",len(rsp), " activities"
+    print("Entries for ",len(rsp), " activities")
     for a in rsp:
         for k in a:
-            print 'Value for key ', k, ' is ', a[k]
+            print('Value for key ', k, ' is ', a[k])
 
     sys.exit(0)
-except ETClientAPINoDataException, msg:
-    print 'No data exception: ',msg
+except ETClientAPINoDataException as nodata:
+    print('No data exception: ',nodata.args[0])
     sys.exit(1)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as ex:
+    print('Operation failed with exception: ')
+    print(ex.args[0])
     sys.exit(1)
 

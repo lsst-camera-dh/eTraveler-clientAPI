@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -8,15 +9,15 @@ try:
     msg = myConn.setHardwareStatus(experimentSN='boojum-01', htype='boojum',
                                    status='REJECTED')
     
-    print "Results from setHardwareStatus: ", msg
+    print("Results from setHardwareStatus: ", msg)
     msg = myConn.modifyHardwareLabel(experimentSN='boojum-02', htype='boojum',
                                      label='ticklish',
                                      group='SnarkRandom',
                                      adding='false',
                                      reason='try generic')
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

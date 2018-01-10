@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -8,7 +9,7 @@ try:
     msg = myConn.setHardwareLocation(experimentSN='boojum-01', htype='boojum',
                                      locationName='loc1',
                                      siteName='test_locations')
-    print "Results from setHardwareLocation with site value: ", msg
+    print("Results from setHardwareLocation with site value: ", msg)
 
     
     # Now try something which should fail since current site has no
@@ -18,8 +19,8 @@ try:
     
 
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

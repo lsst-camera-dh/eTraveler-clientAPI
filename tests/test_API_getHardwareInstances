@@ -1,12 +1,12 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
 from  eTraveler.clientAPI.connection import ETClientAPINoDataException
 
 myConn = Connection('jrb', 'Raw', 
-                    debug=True, prodServer=False, localServer=True,
-                    appSuffix='-jrb')
+                    debug=True, prodServer=False, appSuffix='-jrb')
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = {}
@@ -15,22 +15,22 @@ try:
     model = "Mark 1"
     #labels = ['SnarkRandom:green']
     labels = ['SnarkRandom:']
-    print "Calling getHardwareInstances for hardware type ", htype, " one label" 
+    print("Calling getHardwareInstances for hardware type ", htype, " one label") 
 
     rsp = myConn.getHardwareInstances(htype=htype, hardwareLabels=labels)
-    print "Returned lists of dicts for hardware type ", htype
+    print("Returned lists of dicts for hardware type ", htype)
     entry = 0
     for h in rsp:
-        print "for entry ",entry, " experimentSN ", h['experimentSN']
+        print("for entry ",entry, " experimentSN ", h['experimentSN'])
         for k in h:
-            print 'Value for key ', k, ' is ',h[k]
+            print('Value for key ', k, ' is ',h[k])
 
     sys.exit(0)
-except ETClientAPINoDataException, msg:
-    print 'No data exception: ',msg
+except ETClientAPINoDataException as msg:
+    print('No data exception: ',msg)
     sys.exit(1)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

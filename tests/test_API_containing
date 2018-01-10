@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -9,7 +10,7 @@ rsp = []
 try:
     rsp = myConn.getContainingHardware(experimentSN='iceCream_001',
                                        htype='iceCream')
-    print "Results from getContainingHardware"
+    print("Results from getContainingHardware")
     iDict = 0
     for d in rsp:
         print('Examining array element %d' % (iDict))
@@ -18,8 +19,8 @@ try:
         iDict +=1
 
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -11,19 +12,19 @@ myConn = Connection('jrb', 'Dev',
 rsp = {}
 try:
     run = '4248D'    #   run = 4248 also works
-    print "Calling getRunSummary with run ", run
+    print("Calling getRunSummary with run ", run)
 
     rsp = myConn.getRunSummary(run=run)
-    print "Returned dict for run ", run
+    print("Returned dict for run ", run)
     for k in rsp:
-        print 'Value for key ', k, ' is ', rsp[k]
+        print('Value for key ', k, ' is ', rsp[k])
 
     sys.exit(0)
-except ETClientAPINoDataException, msg:
-    print 'No data exception: ',msg
+except ETClientAPINoDataException as msg:
+    print('No data exception: ',msg)
     sys.exit(1)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

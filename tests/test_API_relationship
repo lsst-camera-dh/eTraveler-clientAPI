@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -21,10 +22,10 @@ try:
                                             slotNames=['bottom', 'middle', 
                                                        'top']
                                             )
-    print 'New relationship type defined.  Returned id is ', newId
+    print('New relationship type defined.  Returned id is ', newId)
     sys.exit(0)
-except Exception,msg:
-    print 'Relationship type definition failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Relationship type definition failed with exception: ')
+    print(msg)
     sys.exit(1)
 

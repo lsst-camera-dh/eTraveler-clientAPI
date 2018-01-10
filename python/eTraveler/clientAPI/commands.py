@@ -58,8 +58,8 @@ def execute(cmdstr, env = None, out = None):
     try:
         proc = Popen(cmdstr, stdout=PIPE, stderr=STDOUT, 
                      universal_newlines=True, env=env)
-    except OSError,err:
-        sys.stderr.write(str(err) + '\n')
+    except OSError as err:
+        sys.stderr.write(err.args[0] + '\n')
         sys.stderr.write('cmd:  %s \n' % ' '.join(cmdstr))
         raise
 
@@ -88,6 +88,6 @@ def execute(cmdstr, env = None, out = None):
     err = 'Command: "%s" failed with code %d \n' % (' '.join(cmdstr), res)
     sys.stderr.write(err)
     sys.stderr.write('Running environment:\n\t%s' % '\n\t'.join(['%s: %s'%i for i in sorted(env.items())]))
-    raise CommandFailure, err
+    raise CommandFailure(err)
 
 

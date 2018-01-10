@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -11,9 +12,9 @@ try:
                                     subsystem='Legacy',
                                     batchedFlag=1,
                                     sequenceWidth='2')
-    print 'New hardware type defined.  Returned id is ', newId
+    print('New hardware type defined.  Returned id is ', newId)
     sys.exit(0)
-except Exception,msg:
-    print 'Hardware type definition failed with exception ',msg
+except Exception as msg:
+    print('Hardware type definition failed with exception ',msg)
     sys.exit(1)
 

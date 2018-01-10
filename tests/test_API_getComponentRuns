@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -12,22 +13,22 @@ rsp = {}
 try:
     htype = 'ITL-CCD'
     expSN = 'ITL-3800C-021'
-    print "Calling getComponentRuns with htype=", htype, " id=",expSN
+    print("Calling getComponentRuns with htype=", htype, " id=",expSN)
 
     rsp = myConn.getComponentRuns(htype=htype, experimentSN=expSN)
 
     for k in rsp:
-      print "For run with rootActivityId=", k
+      print("For run with rootActivityId=", k)
       runDict = rsp[k]
       for kk in runDict:	
-        print '  Value for key ', kk, ' is ', runDict[kk]
+        print('  Value for key ', kk, ' is ', runDict[kk])
 
     sys.exit(0)
-except ETClientAPINoDataException, msg:
-    print 'No data exception: ',msg
+except ETClientAPINoDataException as msg:
+    print('No data exception: ',msg)
     sys.exit(1)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

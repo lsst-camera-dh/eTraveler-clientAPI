@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -13,11 +14,11 @@ try:
 
     print('Results from getRunInfo for activity %d\n' % (act))
     for k in rsp:
-        print ('For key %s returned value is %s\n' % (k, rsp[k]) )
+        print('For key %s returned value is %s\n' % (k, rsp[k]) )
 
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

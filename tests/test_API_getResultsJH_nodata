@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -7,7 +8,7 @@ from  eTraveler.clientAPI.connection import ETClientAPINoDataException
 from  eTraveler.clientAPI.connection import ETClientAPIValueError
 
 
-myConn = Connection('jrb', 'Prod', localServer=True)
+myConn = Connection('jrb', 'Prod', localServer=False)
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
 
 rsp = {}
@@ -20,34 +21,34 @@ try:
     eSN = 'E2V-CCD250-211'
     #model='3800C'
     #filt=('amp', 3)
-    print 'Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' experimentSN=',eSN
+    print('Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' experimentSN=',eSN)
     rsp = myConn.getResultsJH(htype=htype, travelerName=traveler, stepName=step, experimentSN=eSN)
 
     for esn in rsp:
-    	esndata = rsp[esn]
-        print '\n\nNext component:'
-	for k in esndata:
-            if k != 'steps':	
-                print 'Value for key ',k, ' is ',esndata[k]
+        esndata = rsp[esn]
+        print('\n\nNext component:')
+        for k in esndata:
+            if k != 'steps':    
+                print('Value for key ',k, ' is ',esndata[k])
         steps = esndata['steps']
         for s in steps:
-            print ('For stepName %s' % (s) )
+            print('For stepName %s' % (s) )
             sv = steps[s]
-	    for schname in sv:
+            for schname in sv:
                 print('\nGot data for schema %s' % (schname))
-	        instances = sv[schname]
-                print 'Instance 0: '
+                instances = sv[schname]
+                print('Instance 0: ')
                 for field in instances[0]:
-                    print field, ':', instances[0][field]
+                    print(field, ':', instances[0][field])
                 if len(instances) > 1:
-                    print '\nInstance 1: '
+                    print('\nInstance 1: ')
                     for field in instances[1]:
-                        print field, ':', instances[1][field]
+                        print(field, ':', instances[1][field])
     sys.exit(0)
-except ETClientAPINoDataException,msg:
-    print 'No data exception.  Full message:', msg
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except ETClientAPINoDataException as msg:
+    print('No data exception.  Full message:', msg)
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

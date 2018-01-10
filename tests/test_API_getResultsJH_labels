@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
 
 
-myConn = Connection('jrb', 'Prod', localServer=True, appSuffix='-jrb',
+myConn = Connection('jrb', 'Prod', prodServer=False, appSuffix='-jrb',
                     debug=True)
 #myConn = Connection('jrb', 'Prod', localServer=True)
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
@@ -18,7 +19,7 @@ try:
     #eSN = 'ITL-3800C-021'
     #model='3800C'
     #filt=('amp', 3)
-    print 'Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' hardware labels ',labels
+    print('Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' hardware labels ',labels)
 
     #' model=',model, ' itemFilter=',filt
     rsp = myConn.getResultsJH(htype=htype, travelerName=traveler, stepName=step,
@@ -28,28 +29,28 @@ hardwareLabels=labels)
     #rsp = myConn.getResultsJH(htype=htype, travelerName=traveler, stepName=step, experimentSN=eSN, itemFilter=filt)
 
     for esn in rsp:
-    	esndata = rsp[esn]
-        print '\n\nNext component:'
-	for k in esndata:
-            if k != 'steps':	
-                print 'Value for key ',k, ' is ',esndata[k]
+        esndata = rsp[esn]
+        print('\n\nNext component:')
+        for k in esndata:
+            if k != 'steps':    
+                print('Value for key ',k, ' is ',esndata[k])
         steps = esndata['steps']
         for s in steps:
-            print ('For stepName %s' % (s) )
+            print('For stepName %s' % (s) )
             sv = steps[s]
-	    for schname in sv:
+            for schname in sv:
                 print('\nGot data for schema %s' % (schname))
-	        instances = sv[schname]
-                print 'Instance 0: '
+                instances = sv[schname]
+                print('Instance 0: ')
                 for field in instances[0]:
-                    print field, ':', instances[0][field]
+                    print(field, ':', instances[0][field])
                 if len(instances) > 1:
-                    print '\nInstance 1: '
+                    print('\nInstance 1: ')
                     for field in instances[1]:
-                        print field, ':', instances[1][field]
+                        print(field, ':', instances[1][field])
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

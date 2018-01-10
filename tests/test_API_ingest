@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -22,10 +23,10 @@ try:
     #msg = myConn.uploadYaml(filepath=fpath, reason='testing')
     #msg = myConn.validateYaml(contents=c)
 
-    print "Results from validate: ", msg
+    print("Results from validate: ", msg)
     sys.exit(0)
-except Exception,msg:
-    print 'Validation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Validation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

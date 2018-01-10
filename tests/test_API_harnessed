@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -11,6 +12,6 @@ try:
                         travelerName='jh_no-op-Generic',
                         hardwareGroup='Generic-CCD',
                         site='test', jhInstall='JoannesLaptopJH')
-    print "Traveler execution succeeded"
-except Exception,msg:
-    print 'Traveler execution failed with exception ', msg
+    print("Traveler execution succeeded")
+except Exception as msg:
+    print('Traveler execution failed with exception ', msg)

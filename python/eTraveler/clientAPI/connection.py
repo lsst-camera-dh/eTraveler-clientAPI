@@ -2,6 +2,7 @@
 Class for storing connection/configuration information
 and handling communication at bottom layer
 '''
+from __future__ import print_function
 import time
 import json
 import requests
@@ -12,8 +13,10 @@ import stat
 import string
 import datetime
 
-# Note: need to change to configparser for python3
-import ConfigParser
+try:
+    from configparser import RawConfigParser
+except ImportError:
+    from ConfigParser import RawConfigParser
 
 from dateutil.parser import parse as parsetime
 
@@ -22,7 +25,7 @@ from dateutil.parser import parse as parsetime
 import eTraveler.clientAPI.commands
 
 def to_terminal(out):
-    print outd
+    print(out)
 
 class ETClientAPIException(RuntimeError):
     pass
@@ -219,8 +222,8 @@ class Connection:
         self.db = db
         self.cnfPath = cnfPath
         if debug:
-            print " baseurl is ", str(self.baseurl)
-            print "Operator is ", str(self.operator)
+            print(" baseurl is ", str(self.baseurl) )
+            print("Operator is ", str(self.operator))
 
     def __make_params(self, func, **kwds):
         '''
@@ -228,7 +231,7 @@ class Connection:
         with func or raise ETClientAPIValueError.
         '''
         if func not in Connection.API:
-            raise KeyError, 'eTraveler API does not support function %s' % str(func)
+            raise KeyError('eTraveler API does not support function %s' % str(func) )
         cfg = dict(kwds)
         # function is a hidden parameter; don't want caller to set it
         if 'function' in cfg: del cfg['function']
@@ -248,7 +251,7 @@ class Connection:
         if missingCopy:
             msg = 'Not given enough info to satisfy eTraveler API for %s: missing: %s' % (func, str(sorted(missingCopy)))
             #log.error(msg)
-            raise ETClientAPIValueError, msg
+            raise ETClientAPIValueError(msg)
         if 'cnfPath' in cfg:
             # get operator from the file
             cfg['operator'] = self.__readOperator(cfg['cnfPath'])
@@ -257,7 +260,7 @@ class Connection:
             
         if cfg['operator'] == None:
             if self.operator == None:
-                raise ETClientAPIValueError, 'Missing parameter: must specify operator'
+                raise ETClientAPIValueError('Missing parameter: must specify operator')
             cfg['operator'] = self.operator
 
         for k in want:
@@ -283,49 +286,51 @@ class Connection:
 
         if self.debug:
             if 'slotNames' in kwds:
-                print 'Value of slotNames: '
-                print kwds['slotNames']
-            print "json string: "
-            print str(jdata)
+                print('Value of slotNames: ')
+                print(kwds['slotNames'])
+            print("json string: ")
+            print(str(jdata))
             if command == 'defineRelationshipType':
-                print 'Original query string: '
-                print str(query)
+                print('Original query string: ')
+                print(str(query))
                 #print 'In debug mode go no further for now'
                 #return
-            print "about to post to ", posturl
+            print("about to post to ", posturl)
             #print "For now, quit instead"
             #return
         try:
             r = requests.post(posturl, data = {"jsonObject" : jdata})
-        except requests.HTTPError, msg:
+        except requests.HTTPError as htpErr:
             if self.debug:
-                print "HTTPError: ", str(msg)
-            raise
-        except requests.RequestException, msg:
+                print("HTTPError: ", htpErr.args[0])
+            raise htpErr
+        #except requests.RequestException, msg:
+        except requests.RequestException as otherExcept:
             if self.debug:
-                print "Some other exception: ", str(msg)
-            raise
+                print ("Some other exception: ", otherExcept.args[0])
+            raise otherExcept
 
         if self.debug:
-            print 'No exceptions! '
-            print "Status code: ", r.status_code
-            print "Content type: ", r.headers['content-type']
-            print "this is type of what I got: ", type(r)
-            print "As text: ", r.text
+            print ('No exceptions! ')
+            print ("Status code: ", r.status_code)
+            print ("Content type: ", r.headers['content-type'])
+            print ("this is type of what I got: ", type(r))
+            print ("As text: ", r.text)
 
         try:
             rsp = r.json()
 
             return rsp
-        except ValueError, msg:
+        #except ValueError, msg:
+        except ValueError as vErr:
             # for now just reraise
             if self.debug:
-                print "Unable to decode json"
-                print "Original: ", str(r)
-                print "Content type: ", r.headers['content-type']
-                print "Text: ", r.text
-                print "this is type of what I got: ", type(r)
-            raise ETClientAPIValueError, msg
+                print ("Unable to decode json")
+                print ("Original: ", str(r))
+                print ("Content type: ", r.headers['content-type'])
+                print ("Text: ", r.text)
+                print ("this is type of what I got: ", type(r))
+            raise ETClientAPIValueError(vErr.args[0])
 
     def __readOperator(self, cnfpath):
         '''
@@ -339,9 +344,10 @@ class Connection:
         # should have access
         mode = os.stat(cnfExpanded).st_mode
         if (mode & (stat.S_IRWXG + stat.S_IRWXO)) != 0:
-            raise ETClientAPIValueError, "Insufficiently protected config file"
+            raise ETClientAPIValueError("Insufficiently protected config file")
 
-        parser = ConfigParser.RawConfigParser()
+        # parser = ConfigParser.RawConfigParser()
+        parser = RawConfigParser()
         parser.read(cnfExpanded)
         writer = parser.get('eT API writer', self.db + '_writer')
         return writer
@@ -381,7 +387,7 @@ class Connection:
         '''
         k = dict(kwds)
         if 'name' not in k:
-            raise ETClientAPIValueError, 'missing name parameter'
+            raise ETClientAPIValueError('missing name parameter')
 
         # validate input
         badchars = ' $()/\\&<?'
@@ -389,9 +395,9 @@ class Connection:
         for c in badchars:
             if c in nm:
                 if c == ' ':
-                    raise ETClientAPIValueError, 'No blanks allowed in hardware type name'
+                    raise ETClientAPIValueError('No blanks allowed in hardware type name')
                 else:
-                    raise ETClientAPIValueError, 'name contains disallowed character %s' %c
+                    raise ETClientAPIValueError('name contains disallowed character %s' %c)
         rsp = self.__make_query('defineHardwareType', 'defineHardwareType',
                                 **kwds)
 
@@ -415,8 +421,8 @@ class Connection:
             rsp = {'acknowledge' : None, 'command' : 'lcatr-harness with options'}
         harnessedCommand = self._decodeResponse('runAutomatable', rsp)
         if self.debug:
-            print 'Next we should execute the command string: '
-            print harnessedCommand
+            print ('Next we should execute the command string: ')
+            print (harnessedCommand)
 
         eTraveler.clientAPI.commands.execute(harnessedCommand, 
                                              env = self.env,
@@ -443,8 +449,8 @@ class Connection:
 
         harnessedCommand = self._decodeResponse('runAutomatable', rsp)
         if self.debug:
-            print 'Next we should execute the command string: '
-            print harnessedCommand
+            print ('Next we should execute the command string: ')
+            print (harnessedCommand)
 
         eTraveler.clientAPI.commands.execute(harnessedCommand, 
                                              env = self.env,
@@ -1014,24 +1020,25 @@ class Connection:
         if 'numItems' in k:
             num = int(k['numItems'])
         if 'slotNames' not in k:
-            raise ETClientAPIValueError, 'Missing slotName argument'
+            raise ETClientAPIValueError('Missing slotName argument')
 
         slist = k['slotNames']
 
         if isinstance(slist, str): slist = [slist]
 
         if not isinstance(slist, list):
-            raise ETClientAPIValueError, 'Improper slotName list'
+            raise ETClientAPIValueError('Improper slotName list')
         for e in slist: 
             if not isinstance(e, str):
-                raise ETClientAPIValueError, 'Slot names must be strings'
+                raise ETClientAPIValueError('Slot names must be strings')
             if ',' in e:
-                raise ETClientAPIValueError, 'Slot names may not contain commas'
+                raise ETClientAPIValueError('Slot names may not contain commas')
 
         if (len(slist) != 1) and (len(slist) != num):
-            raise ETClientAPIValueError, 'Wrong number of slotnames'
+            raise ETClientAPIValueError('Wrong number of slotnames')
 
-        kwds['slotNames'] = string.join(slist, ',')
+        #kwds['slotNames'] = string.join(slist, ',')
+        kwds['slotNames'] = ','.join(slist)
         return kwds
     
     def __validateLabels(self,labels):
@@ -1042,7 +1049,7 @@ class Connection:
                 for label in labels:
                     self.__validateLabel(label)
             else:
-                raise ETClientAPIValueError, 'Invalid labels list'
+                raise ETClientAPIValueError('Invalid labels list')
 
     def __validateLabel(self,label):
         # check for spaces
@@ -1066,12 +1073,12 @@ class Connection:
                     cnt += line
                 k['contents'] = cnt
         else:
-            raise ETClientAPIValueError, 'No input yaml. Use contents or filepath keyword'
+            raise ETClientAPIValueError('No input yaml. Use contents or filepath keyword')
         return k
 
     def _reviseCall(self, cmd, k):
         if cmd == 'setHardwareStatus':
-            if 'htype' not in k: raise ETClientAPIValueError, 'Missing htype parameter'
+            if 'htype' not in k: raise ETClientAPIValueError('Missing htype parameter')
             k['hardwareTypeName'] = k['htype']
             del k['htype']
             if 'label' in k:
@@ -1081,12 +1088,12 @@ class Connection:
                 k['hardwareStatusName'] = k['status']
                 del k['status']
             else:
-                raise ETClientAPIValueError, 'Missing label or status argument'
+                raise ETClientAPIValueError('Missing label or status argument')
         elif cmd in ['setHardwareLocation', 'getHardwareHierarchy',
                      'getContainingHardware', 'getManufacturerId',
                      'setManufacturerId', 'modifyLabels']:
             if 'htype' not in k:
-                raise ETClientAPIValueError, 'Missing htype parameter'
+                raise ETClientAPIValueError('Missing htype parameter')
             k['hardwareTypeName'] = k['htype']
             del k['htype']
         elif cmd in ['getResultsJH', 'getFilepathsJH', 'getManualResultsStep',
@@ -1094,7 +1101,7 @@ class Connection:
                      'getHardwareInstances', 'getComponentRuns']:
             if 'hardwareType' not in k:
                 if 'htype' not in k:
-                    raise ETClientAPIValueError, 'Missing hytpe parameter'
+                    raise ETClientAPIValueError('Missing hytpe parameter')
                 k['hardwareType'] = k['htype']
                 del k['htype']
             if 'hardwareLabels' in k:
@@ -1103,9 +1110,9 @@ class Connection:
                     k['hardwareLabels'] = l
         if cmd == 'modifyLabels':
             if 'label' not in k:
-                raise ETClientAPIValueError, 'Missing label parameter'
+                raise ETClientAPIValueError('Missing label parameter')
             if 'group' not in k:
-                raise ETClientAPIValueError, 'Missing group parameter'
+                raise ETClientAPIValueError('Missing group parameter')
             k['labelName'] = k['label']
             k['labelGroupName'] = k['group']
             del k['label']
@@ -1129,7 +1136,7 @@ class Connection:
             if 'activityId' in k:
                 k['activityId'] = str(k['activityId'])
             else:
-                raise ETClientAPIValueError, 'Missing activityId argument'
+                raise ETClientAPIValueError('Missing activityId argument')
 
         if cmd in ['getRunActivities', 'getRunResults', 'getRunFilepaths',
                    'getRunSummary', 'getManualRunResults',
@@ -1137,24 +1144,24 @@ class Connection:
             if 'run' in k:
                 k['run'] = str(k['run'])
             else:
-                raise ETClientAPIValueError, 'Missing run argument'
+                raise ETClientAPIValueError('Missing run argument')
         return k
 
     def _parseItemFilter(self, itemFilter):
         if not isinstance(itemFilter, tuple):
-            raise KeyError, 'itemFilter must be tuple'
+            raise KeyError('itemFilter must be tuple')
         if not len(itemFilter) == 2:
-            raise KeyError, 'itemFilter must be tuple of length 2'
+            raise KeyError('itemFilter must be tuple of length 2')
         if not isinstance(itemFilter[0], str): 
-            raise KeyError, 'itemFilter key must be a string'
+            raise KeyError('itemFilter key must be a string')
         if isinstance(itemFilter[1], str) or isinstance(itemFilter[1], int) or isinstance(itemFilter[1], long): return
-        raise KeyError, 'itemFilter value must be integer or string'
+        raise KeyError('itemFilter value must be integer or string')
 
     def _makeIsoTime(self, inputTime):
         try:
             isotime = parsetime(inputTime).isoformat()
-        except ValueError,msg:
-            raise ETClientAPIValueError("Bad time string. " + str(msg))
+        except ValueError as vErr:
+            raise ETClientAPIValueError("Bad time string. " + str(vErr.args[0]))
 
         return isotime
 
@@ -1184,13 +1191,13 @@ class Connection:
                 else: return rsp['id']
             else:
                 if ((command == 'setManufacturerId') and ('already set' in rsp['acknowledge'] ) ):
-                    raise ETClientAPIValueError, rsp['acknowledge']
+                    raise ETClientAPIValueError(rsp['acknowledge'])
                 elif 'No data found' in rsp['acknowledge']:
-                    raise ETClientAPINoDataException, rsp['acknowledge']
+                    raise ETClientAPINoDataException(rsp['acknowledge'])
                 else:
-                    raise ETClientAPIException, rsp['acknowledge']
+                    raise ETClientAPIException(rsp['acknowledge'])
         else:
             if self.debug:
-                print 'return value of unexpected type', type(rsp)
-                print 'return value cast to string is: ', str(rsp)
-            raise ETClientAPIException, str(rsp)
+                print('return value of unexpected type', type(rsp))
+                print('return value cast to string is: ', str(rsp))
+            raise ETClientAPIException(str(rsp))

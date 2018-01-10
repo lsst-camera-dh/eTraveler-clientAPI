@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
@@ -13,7 +15,7 @@ traveler='NCR'
 ##step = 'NCR_C_Final_disposition'
 step = 'NCR_Approval'
 
-print 'Invoking getMissingSignatures with status puased or inProgress '
+print('Invoking getMissingSignatures with status puased or inProgress ')
 #print 'htype=',htype, ' travelerName=',traveler, ' stepName=',step
 #,' experimentSN=',eSN
 try:
@@ -21,29 +23,29 @@ try:
     rsp = myConn.getMissingSignatures()
 
 
-    print 'Data returned for ',len(rsp), ' components'
+    print('Data returned for ',len(rsp), ' components')
     for esn in rsp:
-        print ('For component %s \n' % (esn))
+        print('For component %s \n' % (esn))
         esnData = rsp[esn]
         for r in esnData:
-	    print 'For run number=', r
+            print('For run number=', r)
             
-	    runData = esnData[r]
-	    for k in runData:
-                if k != 'steps':		
-                    print k,' : ', runData[k]
+            runData = esnData[r]
+            for k in runData:
+                if k != 'steps':                
+                    print(k,' : ', runData[k])
             steps = runData['steps']
             for s in steps:
-                print ('For stepName %s \n' % (s) )
+                print('For stepName %s \n' % (s) )
                 steprecords = steps[s]     # array of dicts
                 for rec in steprecords:
                     # sreq is 
                     for field in rec:
-                        print field, ':', rec[field]
+                        print(field, ':', rec[field])
             
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 

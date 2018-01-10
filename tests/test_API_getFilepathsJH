@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from  eTraveler.clientAPI.connection import Connection
 
 
-myConn = Connection('jrb', 'Dev', localServer=True)
+myConn = Connection('jrb', 'Dev', prodServer=False)
 
 rsp = {}
 htype='LCA-11021_RTM'
@@ -12,32 +13,32 @@ eSN='LCA-11021_RTM-004_ETU2-Dev'
 traveler='SR-RTM-EOT-03'
 step = 'read_noise_raft'
 
-print 'Invoking getFilepathsJH with arguments '
-print 'htype=',htype, ' travelerName=',traveler, ' stepName=',step,' experimentSN=',eSN
+print('Invoking getFilepathsJH with arguments ')
+print('htype=',htype, ' travelerName=',traveler, ' stepName=',step,' experimentSN=',eSN)
 try:
     rsp = myConn.getFilepathsJH(htype=htype, stepName=step,
                                 travelerName=traveler, experimentSN=eSN)
 
     for esn in rsp:
-        print ('For component %s \n' % (esn))
+        print('For component %s \n' % (esn))
         esnData = rsp[esn]
         for k in esnData:
             if k != 'steps':
-                print k,' : ', esnData[k]
+                print(k,' : ', esnData[k])
         steps = esnData['steps']
         for s in steps:
-            print ('For stepName %s \n' % (s) )
+            print('For stepName %s \n' % (s) )
             inforecords = steps[s]
-	    print 'Record 0: '
+	    print('Record 0: ')
             for field in inforecords[0]:
-                print field, ':', inforecords[0][field]
+                print(field, ':', inforecords[0][field])
             if len(inforecords) > 1:
-                print '\nRecord 1: '
+                print('\nRecord 1: ')
                 for field in inforecords[1]:
-                    print field, ':', inforecords[1][field]
+                    print(field, ':', inforecords[1][field])
     sys.exit(0)
-except Exception,msg:
-    print 'Operation failed with exception: '
-    print  msg
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
     sys.exit(1)
 
