@@ -35,9 +35,9 @@ class ETClientAPINoDataException(ETClientAPIException):
     pass
 
 class Connection:
-    prodServerUrl='http://lsst-camera.slac.stanford.edu/eTraveler'
-    devServerUrl='http://lsst-camera-dev.slac.stanford.edu/eTraveler'
-    localServerUrl='http://localhost:8084/eTraveler'
+    prodServerUrl='https://lsst-camera.slac.stanford.edu/eTraveler'
+    devServerUrl='https://lsst-camera-dev.slac.stanford.edu/eTraveler'
+    localServerUrl='https://localhost:8084/eTraveler'
 
     
     API = {
@@ -86,27 +86,27 @@ class Connection:
                                'manufacturerId', 'reason', 'operator'],
         'getRunResults' : ['function', 'run', 'stepName', 'schemaName',
                            'filterKey', 'filterValue', 'operator'],
-        'getRunFilepaths' : ['function', 'run', 'stepName', 'operator'],
+        'getRunFilepaths' : ['function', 'run', 'stepName', 'runStatus', 'operator'],
         'getResultsJH'  : ['function', 'travelerName', 'hardwareType',
                            'stepName', 'schemaName', 'model', 'experimentSN',
-                           'filterKey', 'filterValue', 'hardwareLabels',
+                           'filterKey', 'filterValue', 'runStatus', 'hardwareLabels',
                            'operator'],
         'getFilepathsJH'  : ['function', 'travelerName', 'hardwareType',
                              'stepName', 'model', 'experimentSN',
-                             'hardwareLabels', 'operator'],
+                             'hardwareLabels', 'runStatus', 'operator'],
         'getManualRunResults' : ['function', 'run', 'stepName', 'operator'],
         'getManualRunFilepaths' : ['function', 'run','stepName', 'operator'], 
         'getManualRunSignatures' : ['function', 'run','stepName',
                                     'activityStatus', 'operator'], 
         'getManualResultsStep' : ['function', 'travelerName', 'hardwareType',
                                   'stepName', 'model', 'experimentSN',
-                                  'hardwareLabels', 'operator'],
+                                  'hardwareLabels', 'runStatus',  'operator'],
         'getManualFilepathsStep' : ['function', 'travelerName', 'hardwareType',
                                     'stepName', 'model', 'experimentSN',
-                                    'hardwareLabels', 'operator'],
+                                    'hardwareLabels', 'runStatus', 'operator'],
         'getManualSignaturesStep' : ['function', 'travelerName', 'hardwareType',
                                      'stepName', 'model', 'experimentSN',
-                                     'hardwareLabels', 'activityStatus',
+                                     'hardwareLabels', 'activityStatus', 'runStatus',
                                      'operator'],
         'getMissingSignatures' : ['function', 'travelerName', 'stepName',
                                   'hardwareType', 'model', 'experimentSN',
@@ -115,7 +115,7 @@ class Connection:
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
         'getComponentRuns' : ['function', 'hardwareType', 'experimentSN',
-                              'operator', 'travelerName'],
+                              'operator', 'travelerName', 'runStatus'],
         'getHardwareInstances' : ['function', 'hardwareType',
                                   'experimentSN', 'model', 'hardwareLabels',
                                   'operator'],
@@ -162,10 +162,10 @@ class Connection:
                            'schemaName' : None, 'model' : None,
                            'experimentSN' : None, 'filterKey' : None,
                            'filterValue' : None, 'hardwareLabels' : None,
-                           'operator' : None},
+                           'runStatus' : None, 'operator' : None},
         'getFilepathsJH'  : {'function' : 'getFilepathsJH' , 
                              'model' : None, 'experimentSN' : None,
-                             'hardwareLabels' : None, 'operator' : None},
+                             'hardwareLabels' : None, 'runStatus' : None, 'operator' : None},
         'getManualRunResults' : {'function' : 'getManualRunResults',
                                  'stepName' : None, 'operator' : None},
         'getManualRunFilepaths' : {'function' : 'getManualRunFilepaths',
@@ -176,10 +176,10 @@ class Connection:
                                     'operator' : None},
         'getManualResultsStep' : {'function' : 'getManualResultsStep',
                                   'model' : None, 'experimentSN' : None,
-                                  'hardwareLabels' : None},
+                                  'hardwareLabels' : None, 'runStatus' : None},
         'getManualFilepathsStep' : {'function' : 'getManualFilepathsStep',
                                     'model' : None, 'experimentSN' : None,
-                                    'hardwareLabels' : None},
+                                    'hardwareLabels' : None, 'runStatus' : None},
         'getManualSignaturesStep' : {'function' : 'getManualSignaturesStep',
                                      'model' : None, 'experimentSN' : None,
                                      'hardwareLabels' : None,
@@ -195,7 +195,7 @@ class Connection:
         'getRunSummary' : {'function' : 'getRunSummary',
                            'operator' : None},
         'getComponentRuns' : {'function' : 'getComponentRuns',
-                              'travelerName' : None,
+                              'travelerName' : None, 'runStatus' : None,
                               'operator' : None},
         'getHardwareInstances' : {'function' : 'getHardwareInstances',
                                   'experimentSN' : None, 'model' : None,
@@ -210,10 +210,13 @@ class Connection:
         if not prodServer: url = Connection.devServerUrl + appSuffix
         # localServer wins if set
         if localServer: url = Connection.localServerUrl + appSuffix
-        # For now can't talk to CDMS databases
-        #url += ('/exp/' + exp + '/')
-        url += '/' + db + '/Results/'
-        self.baseurl = url
+
+        if exp != None:
+            url += ('/exp/' + exp)
+        url += '/' + db + '/'
+
+        self.baseurl = url + 'Results/'
+        self.openSessionUrl = url + 'error.html.jsp'
         # if operator is None, prompt or use login?
         # do something for authorization
         self.operator = operator
@@ -221,9 +224,13 @@ class Connection:
         self.env = dict(os.environ)
         self.db = db
         self.cnfPath = cnfPath
+        self.messageParam = {"message" : "Priming pump for POST"}
         if debug:
             print(" baseurl is ", str(self.baseurl) )
             print("Operator is ", str(self.operator))
+
+        #self.debugDict = {"debugExperimentContextFilter" : "true",
+        #                  "debugExperimentContextServlet" : "true"}
 
     def __make_params(self, func, **kwds):
         '''
@@ -298,39 +305,51 @@ class Connection:
             print("about to post to ", posturl)
             #print "For now, quit instead"
             #return
-        try:
-            r = requests.post(posturl, data = {"jsonObject" : jdata})
-        except requests.HTTPError as htpErr:
-            if self.debug:
-                print("HTTPError: ", htpErr.args[0])
-            raise htpErr
-        #except requests.RequestException, msg:
-        except requests.RequestException as otherExcept:
-            if self.debug:
-                print ("Some other exception: ", otherExcept.args[0])
-            raise otherExcept
+        with requests.Session() as session:
+            try:
+                # First innocuous post to get session
+                if self.debug:
+                    print("Open session with GET to ", self.openSessionUrl)
+                    #rOpen = session.get(self.openSessionUrl, params=self.debugDict)
+                rOpen = session.get(self.openSessionUrl,
+                                    params=self.messageParam)
+                # Now the query we care about
+                if self.debug:
+                    print("Now for the POST")
 
-        if self.debug:
-            print ('No exceptions! ')
-            print ("Status code: ", r.status_code)
-            print ("Content type: ", r.headers['content-type'])
-            print ("this is type of what I got: ", type(r))
-            print ("As text: ", r.text)
+                #    r = session.post(posturl, data = {"jsonObject" : jdata},
+                #                     params=self.debugDict)
 
-        try:
-            rsp = r.json()
+                r = session.post(posturl, data = {"jsonObject" : jdata})
+            except requests.HTTPError as htpErr:
+                if self.debug:
+                    print("HTTPError: ", htpErr.args[0])
+                raise htpErr
+            except requests.RequestException as otherExcept:
+                if self.debug:
+                    print ("Some other exception: ", otherExcept.args[0])
+                raise otherExcept
 
-            return rsp
-        #except ValueError, msg:
-        except ValueError as vErr:
-            # for now just reraise
             if self.debug:
-                print ("Unable to decode json")
-                print ("Original: ", str(r))
+                print ('No exceptions! ')
+                print ("Status code: ", r.status_code)
                 print ("Content type: ", r.headers['content-type'])
-                print ("Text: ", r.text)
                 print ("this is type of what I got: ", type(r))
-            raise ETClientAPIValueError(vErr.args[0])
+                print ("As text: ", r.text)
+
+            try:
+                rsp = r.json()
+
+                return rsp
+            except ValueError as vErr:
+                # for now just reraise
+                if self.debug:
+                    print ("Unable to decode json")
+                    print ("Original: ", str(r))
+                    print ("Content type: ", r.headers['content-type'])
+                    print ("Text: ", r.text)
+                    print ("this is type of what I got: ", type(r))
+                raise ETClientAPIValueError(vErr.args[0])
 
     def __readOperator(self, cnfpath):
         '''
@@ -346,7 +365,6 @@ class Connection:
         if (mode & (stat.S_IRWXG + stat.S_IRWXO)) != 0:
             raise ETClientAPIValueError("Insufficiently protected config file")
 
-        # parser = ConfigParser.RawConfigParser()
         parser = RawConfigParser()
         parser.read(cnfExpanded)
         writer = parser.get('eT API writer', self.db + '_writer')
@@ -746,6 +764,9 @@ class Connection:
            experimentSN - only fetch for this component; optional
            itemFilter (pair: key name and value)
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runStatus - list of strings of status values. When used, only runs having
+                       final status in the supplied list will be considered. If omitted,
+                       no cut is made on run status.
         '''
         k = dict(kwds)
         rqst = {}
@@ -774,6 +795,9 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runStatus - list of strings of status values. When used, only runs having
+                       final status in the supplied list will be considered. If omitted,
+                       no cut is made on run status.
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -859,6 +883,9 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runStatus - list of strings of status values. When used, only runs having
+                       final status in the supplied list will be considered. If omitted,
+                       no cut is made on run status.
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -878,6 +905,9 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runStatus - list of strings of status values. When used, only runs having
+                       final status in the supplied list will be considered. If omitted,
+                       no cut is made on run status.
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -897,6 +927,9 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runStatus - list of strings of status values. When used, only runs having
+                       final status in the supplied list will be considered. If omitted,
+                       no cut is made on run status.
         '''
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
@@ -979,6 +1012,10 @@ class Connection:
         Keyword Arguments:
            htype - hardware type name, required
            experimentSN - component identifier, required
+           travelerName - optional
+           runStatus - list of strings of status values. When used, only runs having
+                       final status in the supplied list will be considered. If omitted,
+                       no cut is made on run status.
         Returns:
            for each traveler execution (run) on the component, return
            a dict of information, similar to return from getRunSummary
@@ -1037,7 +1074,6 @@ class Connection:
         if (len(slist) != 1) and (len(slist) != num):
             raise ETClientAPIValueError('Wrong number of slotnames')
 
-        #kwds['slotNames'] = string.join(slist, ',')
         kwds['slotNames'] = ','.join(slist)
         return kwds
     

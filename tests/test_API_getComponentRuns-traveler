@@ -17,7 +17,8 @@ try:
     print("Calling getComponentRuns with htype=", htype, " id=",expSN, " travelerName=",travelerName)
 
     rsp = myConn.getComponentRuns(htype=htype, experimentSN=expSN,
-                                  travelerName=travelerName)
+                                  travelerName=travelerName,
+                                  runStatus=['success'])
 
     for k in rsp:
       print("For run with rootActivityId=", k)

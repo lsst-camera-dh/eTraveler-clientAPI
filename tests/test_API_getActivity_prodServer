@@ -8,7 +8,7 @@ from  eTraveler.clientAPI.connection import ETClientAPINoDataException
 #myConn = Connection('jrb', 'Dev', 
 #                    debug=True, prodServer=False, appSuffix='-jrb')
 myConn = Connection('jrb', 'Dev', 
-                    debug=True, prodServer=False)
+                    debug=True, prodServer=True)
 ##myConn = Connection('jrb', 'Dev', debug=True, prodServer=True)
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
