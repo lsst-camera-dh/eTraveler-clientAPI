@@ -22,10 +22,10 @@ try:
     print("Returned list of NCRs for component ", experimentSN)
     entry = 0
     for h in rsp:
-        print("for entry ",entry, " NCR# ", h['NCRnumber'])
+        print("\nfor entry ",entry, " NCR# ", h['NCRnumber'])
         for k in h:
             print('Value for key ', k, ' is ',h[k])
-
+        entry +=1
     sys.exit(0)
 except ETClientAPINoDataException as msg:
     print('No data exception: ',msg)
