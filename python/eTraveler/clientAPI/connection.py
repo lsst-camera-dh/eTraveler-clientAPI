@@ -110,7 +110,7 @@ class Connection:
                                      'operator'],
         'getMissingSignatures' : ['function', 'travelerName', 'stepName',
                                   'hardwareType', 'model', 'experimentSN',
-                                  'activityStatus', 'NCRLabels', 'operator'],
+                                  'activityStatus', 'ncrLabels', 'operator'],
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
@@ -119,6 +119,8 @@ class Connection:
         'getHardwareInstances' : ['function', 'hardwareType',
                                   'experimentSN', 'model', 'hardwareLabels',
                                   'operator'],
+        'getHardwareNCRs' : ['function', 'hardwareType', 'experimentSN', 
+                             'items', 'ncrLabels', 'operator'],
         }
     APIdefaults = { 
         'runHarnessedById' : {'operator' : None, 'travelerVersion' : ''}, 
@@ -187,7 +189,7 @@ class Connection:
         'getMissingSignatures' : {'function' : 'getMissingSignatures', 'travelerName' : None,
                                   'stepName' : None, 'hardwareType' : None, 'model' : None,
                                   'experimentSN' : None, 'activityStatus' : None,
-                                  'NCRLabels' : None, 'operator' : None},
+                                  'ncrLabels' : None, 'operator' : None},
         'getActivity' : {'function' : 'getActivity',
                          'operator' : None},
         'getRunActivities' : {'function' : 'getRunActivities',
@@ -200,6 +202,9 @@ class Connection:
         'getHardwareInstances' : {'function' : 'getHardwareInstances',
                                   'experimentSN' : None, 'model' : None,
                                   'hardwareLabels' : None, 'operator' : None},
+        'getHardwareNCRs' : {'function' : 'getHardwareNCRs',
+                             'items' : 'this',
+                             'hardwareLabels' : None, 'operator' : None},
         }
         
         
@@ -951,6 +956,8 @@ class Connection:
            experimentSN - only fetch for this component; optional
            activityStatus - list of strings of status values.  Defaults to
                             ['success', 'inProgress', 'paused']
+           NOTE:  there is also some provision for another argument ncrLabels
+                  but the underlying server function currently ignores it
         '''
         k = dict(kwds)
         rqst = {}
@@ -1044,6 +1051,35 @@ class Connection:
         rqst = self._reviseCall('getHardwareInstances', k)
         rsp = self.__make_query('getResults', 'getHardwareInstances', **rqst)
         return self._decodeResponse('getResults', rsp)
+
+    def getHardwareNCRs(self, **kwds):
+        '''
+        Keyword Arguments:
+           htype        - Hardware type name. Required.
+           experimentSN - Identifier for component.  Required.
+           items        - Allowed values are 'this', 'ancestors', 'children'
+                          Defaults to 'this'
+           labelGroups  - list of NCR label groups of interest. Optional
+        Return if successful:
+           a list of dicts, one per NCR associated with component (or child
+           or ancestor, if so specified by items argument.
+           If a list of label groups has been supplied, any applied labels
+           in those groups will be included in the output.
+  
+           Keys for each dict are 
+           level (0 for specified experimentSN; positive integer for 
+           ancestors or descendants indicating distance from this) 
+           hardware type, experimentSN, experimentSN, hardware id,
+           NCR number, run number, NCR status and whether it is final,
+           current step name, and associated labels if requested.
+           The list is sorted using the following keys in this order:
+           level, hardwareType, experimentSN, NCRnumber
+        '''
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getHardwareNCRs', k)
+        rsp = self.__make_query('getResults', 'getHardwareNCRs', **rqst)
+        return self._decodeResponse('getResults', rsp)
  
     def __check_slotnames(self, **kwds):
         '''
@@ -1134,7 +1170,8 @@ class Connection:
             del k['htype']
         elif cmd in ['getResultsJH', 'getFilepathsJH', 'getManualResultsStep',
                      'getManualFilepathsStep', 'getManualSignaturesStep',
-                     'getHardwareInstances', 'getComponentRuns']:
+                     'getHardwareInstances', 'getHardwareNCRs',
+                     'getComponentRuns']:
             if 'hardwareType' not in k:
                 if 'htype' not in k:
                     raise ETClientAPIValueError('Missing hytpe parameter')
@@ -1144,6 +1181,10 @@ class Connection:
                 if type(k['hardwareLabels']) == type('a'):
                     l = [k['hardwareLabels'] ]
                     k['hardwareLabels'] = l
+            if 'ncrLabels' in k:
+                if type(k['ncrLabels']) == type('a'):
+                    l = [k['ncrLabels'] ]
+                    k['ncrLabels'] = l
         if cmd == 'modifyLabels':
             if 'label' not in k:
                 raise ETClientAPIValueError('Missing label parameter')
