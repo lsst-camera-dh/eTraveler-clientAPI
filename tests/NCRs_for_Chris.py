@@ -52,22 +52,20 @@ def get_NCRs(conn, htype='LCA-11021_RTM', component='LCA-11021_RTM-004'):
                     h['did_see'] = descr['Was_seen']['value']
 
                     if type(h['should_see']) != type(""):
-                        print("Offending text: ")
-                        print(h['should_see'])
+                        #print("Offending text: ")
+                        #print(h['should_see'])
 
                         try:
                             h['should_see'] = h['should_see'].encode('ascii', errors='replace')
-                                #codecs.encode(v, 'ascii', 'ignore')
                         except:
                             h['should_see'] = '(ascii encoding error)'
 
                     if type(h['did_see']) != type(""):
-                        print("Offending text: ")
-                        print(h['did_see'])
+                        #print("Offending text: ")
+                        #print(h['did_see'])
                         
                         try:
                             h['did_see'] = h['did_see'].encode('ascii', errors='replace')
-                                #codecs.encode(v, 'ascii', 'ignore')
                         except:
                             h['did_see'] = '(ascii encoding error)'
                                 
