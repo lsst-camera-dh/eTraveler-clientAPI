@@ -788,7 +788,10 @@ class Connection:
            run - the only required argument
            stepname
         '''
-        rsp = self.__make_query('getResults', 'getRunFilepaths', **kwds)
+        k = dict(kwds)
+        rqst = {}
+        rqst = self._reviseCall('getRunFilepaths', k)
+        rsp = self.__make_query('getResults', 'getRunFilepaths', **rqst)
         return self._decodeResponse('getResults', rsp)
 
     def getFilepathsJH(self, **kwds):
