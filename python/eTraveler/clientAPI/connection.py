@@ -1274,6 +1274,8 @@ class Connection:
                     raise ETClientAPIValueError(rsp['acknowledge'])
                 elif 'No data found' in rsp['acknowledge']:
                     raise ETClientAPINoDataException(rsp['acknowledge'])
+                elif 'GetResultsNoDataException' in rsp['acknowledge']:
+                    raise ETClientAPINoDataException(rsp['acknowledge'])
                 else:
                     raise ETClientAPIException(rsp['acknowledge'])
         else:
