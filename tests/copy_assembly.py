@@ -60,6 +60,7 @@ class CopyAssembly:
                     phtype = r['parent_hardwareTypeName']
                     pexpSN = r['parent_experimentSN']
                     dict0['htype'] = phtype
+                    dict0['leaf'] = False
                     try:
                         rootInfos=self.conn.getHardwareInstances(htype=phtype, experimentSN=pexpSN)
                         rootInfo = rootInfos[0]
@@ -77,6 +78,7 @@ class CopyAssembly:
             cdict['relationshipName'] = r['relationshipTypeName']
             cdict['level'] = int(r['level']) + 1
             cdict['htype'] = chtype
+            cdict['leaf'] = True    #   default assumption
             cexpSN = r['child_experimentSN']
             try:
                 infos = self.conn.getHardwareInstances(htype=chtype, 
@@ -89,6 +91,10 @@ class CopyAssembly:
                 raise
 
         print('len of out list is ', len(outlist))
+        for cdict in outlist:
+            for r in response:
+                if r['parent_experimentSN'] == cdict['experimentSN'] and r['parent_hardwareTypeName'] == cdict['htype']:
+                    cdict['leaf'] = False
         return outlist
 
     def register(self, elt):
@@ -104,6 +110,16 @@ class CopyAssembly:
                                           manufacturerId=elt['manufacturerId'],
                                           manufacturer=elt['manufacturer'],
                                           model=elt['model'])
+
+    def setReady(self, elt, forReal):
+        if forReal:
+            self.conn.setHardwareStatus(experimentSN=elt['experimentSN'],
+                                        htype=elt['htype'], status='READY',
+                                        reason='Set by copy_assembly')
+            print('Set status to READY for component ', elt['experimentSN'])
+        else:
+            print('Would have set status to READY for component ',
+                  elt['experimentSN'])
 
     def execute(self):
         source_list = []
@@ -145,12 +161,17 @@ class CopyAssembly:
 
         # Make new connection to dest db
         print('Connecting to database ', args.dest_db)
+        forReal = args.forreal
         if args.forreal:
-            print('Continue? Y or N?')
-            ans = raw_input('--> ')
+            print('Continue for real? Y or N?')
+            try:
+                ans = raw_input('--> ')
+            except NameError:
+                ans = input('-->  ')
+
             if ans[0] != 'Y':
-                print('Bye')
-                exit(0)
+                print('Switching to dry-run behavior')
+                forReal = False
 
         self.conn = Connection(uname, args.dest_db,prodServer=True,debug=False)
 
@@ -163,20 +184,23 @@ class CopyAssembly:
 
         for elt in source_list:
             print('Working on component ', elt['experimentSN'])
+            #print('Value for key leaf is: ', elt['leaf'])
             try:
                 rs = self.conn.getHardwareInstances(htype=elt['htype'],
                                                     experimentSN=elt['experimentSN'])
-                print('Component found in dest db. No action')
-                continue
+                print('Component found in dest db. No register action')
             except ETClientAPINoDataException:
                 print('Did not find corresponding component in dest db')
-                if (args.forreal):
+                if (forReal):
                     self.register(elt)
                 else:
                     print('Dryrun.  No attempt to create entry')
-                continue
+                pass
             except:
                 raise
+
+            if elt['leaf'] is True:
+                self.setReady(elt, forReal)
         
 
 if __name__=='__main__':
@@ -194,7 +218,7 @@ if __name__=='__main__':
     parser.add_argument('-s', '--source', default='Prod', 
                         dest='source_db', help='Source database')
                         
-    parser.add_argument('-d', '--dest', default='Dev', 
+    parser.add_argument('--dest', default='Dev', 
                         dest='dest_db', help='Destination database')
     parser.add_argument('--hardwareType',
                         default='LCA-11021_RTM', dest='htype', 
