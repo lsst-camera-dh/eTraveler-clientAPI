@@ -5,11 +5,12 @@ import sys
 from  eTraveler.clientAPI.connection import Connection
 
 
-myConn = Connection('jrb', 'Raw', prodServer=False)
+myConn = Connection('jrb', 'Dev', prodServer=True)
+#myConn = Connection('jrb', 'Raw', prodServer=False)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = []
 try:
-    act = 587
+    act = 42897
     rsp = myConn.getRunInfo(activityId=act)
 
     print('Results from getRunInfo for activity %d\n' % (act))
