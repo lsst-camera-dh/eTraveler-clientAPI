@@ -6,12 +6,13 @@ from  eTraveler.clientAPI.connection import Connection
 from  eTraveler.clientAPI.connection import ETClientAPINoDataException
 
 myConn = Connection('jrb', 'Dev', 
-                    debug=True, prodServer=False, appSuffix='-jrb')
+                    debug=True, prodServer=True)
+#                    debug=True, prodServer=False, appSuffix='-jrb')
 #myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = {}
 try:
-    run = '4248D'    #   run = 4248 also works
+    run = '6345D'    #   run = 4248 also works
     print("Calling getRunSummary with run ", run)
 
     rsp = myConn.getRunSummary(run=run)

@@ -5,11 +5,12 @@ import sys
 from  eTraveler.clientAPI.connection import Connection
 
 
-myConn = Connection('jrb', 'Dev', localServer=False)
+myConn = Connection('jrb', 'Dev', localServer=False, debug=True)
 #myConn = Connection('jrb', 'Raw', prodServer=True)
 rsp = {}
 try:
-    run = '4689D'
+    #run = '4689D'
+    run = 4689
     step = 'read_noise_raft'
     rsp = myConn.getRunFilepaths(run=run, stepName=step)
 
