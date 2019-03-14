@@ -89,11 +89,12 @@ class Connection:
         'getRunFilepaths' : ['function', 'run', 'stepName', 'operator'],
         'getResultsJH'  : ['function', 'travelerName', 'hardwareType',
                            'stepName', 'schemaName', 'model', 'experimentSN',
-                           'filterKey', 'filterValue', 'runStatus', 'hardwareLabels',
-                           'operator'],
+                           'filterKey', 'filterValue', 'runStatus', 
+                           'hardwareLabels', 'runLabels', 'operator'],
         'getFilepathsJH'  : ['function', 'travelerName', 'hardwareType',
                              'stepName', 'model', 'experimentSN',
-                             'hardwareLabels', 'runStatus', 'operator'],
+                             'hardwareLabels', 'runLabels', 'runStatus', 
+                             'operator'],
         'getManualRunResults' : ['function', 'run', 'stepName', 'operator'],
         'getManualRunFilepaths' : ['function', 'run','stepName', 'operator'], 
         'getManualRunSignatures' : ['function', 'run','stepName',
@@ -164,10 +165,12 @@ class Connection:
                            'schemaName' : None, 'model' : None,
                            'experimentSN' : None, 'filterKey' : None,
                            'filterValue' : None, 'hardwareLabels' : None,
+                           'runLabels' : None,
                            'runStatus' : None, 'operator' : None},
         'getFilepathsJH'  : {'function' : 'getFilepathsJH' , 
                              'model' : None, 'experimentSN' : None,
-                             'hardwareLabels' : None, 'runStatus' : None, 'operator' : None},
+                             'hardwareLabels' : None, 'runLabels' : None,
+                             'runStatus' : None, 'operator' : None},
         'getManualRunResults' : {'function' : 'getManualRunResults',
                                  'stepName' : None, 'operator' : None},
         'getManualRunFilepaths' : {'function' : 'getManualRunFilepaths',
@@ -769,6 +772,7 @@ class Connection:
            experimentSN - only fetch for this component; optional
            itemFilter (pair: key name and value)
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runLabels - same format as hardwareLabels
            runStatus - list of strings of status values. When used, only runs having
                        final status in the supplied list will be considered. If omitted,
                        no cut is made on run status.
@@ -777,6 +781,8 @@ class Connection:
         rqst = {}
         if 'hardwareLabels' in kwds:
             self.__validateLabels(kwds['hardwareLabels'])
+        if 'runLabels' in kwds:
+            self.__validateLabels(kwds['runLabels'])
         rqst = self._reviseCall('getResultsJH', k)
         rsp = self.__make_query('getResults', 'getResultsJH', **rqst);
 
@@ -803,6 +809,7 @@ class Connection:
            model - cut on hardware model; optional
            experimentSN - only fetch for this component; optional
            hardwareLabels - list of strings, each of form groupName:labelName; optional
+           runLabels - same format as hardwareLabels
            runStatus - list of strings of status values. When used, only runs having
                        final status in the supplied list will be considered. If omitted,
                        no cut is made on run status.
@@ -810,6 +817,8 @@ class Connection:
         k = dict(kwds)
         if 'hardwareLabels' in kwds:
             self.__validateLabels(kwds['hardwareLabels'])
+        if 'runLabels' in kwds:
+            self.__validateLabels(kwds['runLabels'])
         rqst = {}
         rqst = self._reviseCall('getFilepathsJH', k)
         rsp = self.__make_query('getResults', 'getFilepathsJH', **rqst);
@@ -1184,6 +1193,10 @@ class Connection:
                 if type(k['hardwareLabels']) == type('a'):
                     l = [k['hardwareLabels'] ]
                     k['hardwareLabels'] = l
+            if 'runLabels' in k:
+                if type(k['runLabels']) == type('a'):
+                    l = [k['runLabels'] ]
+                    k['runLabels'] = l
             if 'ncrLabels' in k:
                 if type(k['ncrLabels']) == type('a'):
                     l = [k['ncrLabels'] ]

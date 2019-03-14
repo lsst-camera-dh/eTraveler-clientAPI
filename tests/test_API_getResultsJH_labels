@@ -12,21 +12,30 @@ myConn = Connection('jrb', 'Prod', prodServer=False, appSuffix='-jrb',
 
 rsp = {}
 try:
-    traveler = 'SR-EOT-1'
-    step = 'read_noise'
-    htype = 'ITL-CCD'
-    labels = ['SR_Grade:SR_SEN_Science', 'SR_Grade:SR_SEN_Reserve']
-    #eSN = 'ITL-3800C-021'
-    #model='3800C'
-    #filt=('amp', 3)
-    print('Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' hardware labels ',labels)
+    # To test hardware label
+    #traveler = 'SR-EOT-1'
+    #step = 'read_noise'
+    #htype = 'ITL-CCD'
+    #labels = ['SR_Grade:SR_SEN_Science', 'SR_Grade:SR_SEN_Reserve']
 
-    #' model=',model, ' itemFilter=',filt
-    rsp = myConn.getResultsJH(htype=htype, travelerName=traveler, stepName=step,
-hardwareLabels=labels)    
+    ##eSN = 'ITL-3800C-021'
+    ##model='3800C'
+    ##filt=('amp', 3)
+    #print('Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' hardware labels ',labels)
+    ##' model=',model, ' itemFilter=',filt
+
+    # To test run labels
+    traveler = 'SR-RTM-EOT-03'
+    htype = 'LCA-11021_RTM'
+    step = 'sflat_raft_acq'
+    runLabels = ['Run_Quality:Run_for_the_record', 'Run_Quality:Good_run']
+    rsp = myConn.getResultsJH(htype=htype, travelerName=traveler, 
+                              stepName=step, runLabels=runLabels)    
     #model=model, itemFilter=filt)
     #print 'Invoking getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' experimentSN=',eSN, ' itemFilter=',filt
     #rsp = myConn.getResultsJH(htype=htype, travelerName=traveler, stepName=step, experimentSN=eSN, itemFilter=filt)
+
+    print('Invoked getResultsJH with htype=',htype,' travelerName=',traveler,' stepName=',step,' run labels ',runLabels)
 
     for esn in rsp:
         esndata = rsp[esn]
