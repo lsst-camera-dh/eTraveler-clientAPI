@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import sys
+
+from  eTraveler.clientAPI.connection import Connection
+from  eTraveler.clientAPI.connection import ETClientAPINoDataException
+
+myConn = Connection('jrb', 'Prod', 
+                    debug=True, prodServer=False, appSuffix='-jrb')
+#                    debug=True, prodServer=True)
+#myConn = Connection('jrb', 'Dev', localServer=True, debug=True)
+#myConn = Connection('jrb', 'Raw', prodServer=True)
+rsp = {}
+try:
+    labels=['Run_Quality:Good_run']
+    print("Calling getRunsByLabel with labels: ")
+    for l in labels:   print(l)
+
+    rsp = myConn.getRunsByLabel(labels, travelerName='SR-RTM-EOT-03')
+    print("Returned dict keyed by root activity id:")
+    for k in rsp:   
+        d = rsp[k]
+        print('For key ', k, ' examine associated dict.. ')
+        for i in d:
+            print('For item ', i, 'value is ', d[i])
+
+    sys.exit(0)
+except ETClientAPINoDataException as msg:
+    print('No data exception: ',msg)
+    sys.exit(1)
+except Exception as msg:
+    print('Operation failed with exception: ')
+    print(msg)
+    sys.exit(1)
+

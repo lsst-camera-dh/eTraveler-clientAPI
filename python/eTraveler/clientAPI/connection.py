@@ -115,6 +115,8 @@ class Connection:
         'getActivity'     : ['function', 'activityId', 'operator'],
         'getRunActivities' : ['function', 'run', 'operator'],
         'getRunSummary' : ['function', 'run', 'operator'],
+        'getRunsByLabel' : ['function', 'runLabels', 'runStatus',
+                            'travelerName'],
         'getComponentRuns' : ['function', 'hardwareType', 'experimentSN',
                               'operator', 'travelerName', 'runStatus'],
         'getHardwareInstances' : ['function', 'hardwareType',
@@ -199,6 +201,9 @@ class Connection:
                               'operator' : None},
         'getRunSummary' : {'function' : 'getRunSummary',
                            'operator' : None},
+        'getRunsByLabel' : {'function' : 'getRunsByLabel', 
+                            'runStatus' : ['success', 'closed'],
+                            'travelerName' : None, 'operator' : None},
         'getComponentRuns' : {'function' : 'getComponentRuns',
                               'travelerName' : None, 'runStatus' : None,
                               'operator' : None},
@@ -1026,6 +1031,13 @@ class Connection:
         rsp = self.__make_query('getResults', 'getRunSummary', **rqst)
         return self._decodeResponse('getResults', rsp)
 
+    def getRunsByLabel(self, runLabels, **kwds):
+        k = dict(kwds)
+        k['runLabels'] = runLabels
+        # rqst = self._reviseCall('getRunsByLabel', k)   not needed
+        rsp = self.__make_query('getResults', 'getRunsByLabel', **k)
+        return self._decodeResponse('getResults', rsp)
+
     def getComponentRuns(self, **kwds):
         '''
         Keyword Arguments:
@@ -1044,7 +1056,7 @@ class Connection:
         rqst = self._reviseCall('getComponentRuns', k)
         rsp = self.__make_query('getResults', 'getComponentRuns', **rqst)
         return self._decodeResponse('getResults', rsp)
- 
+
     def getHardwareInstances(self, **kwds):
         '''
         Keyword Arguments:
